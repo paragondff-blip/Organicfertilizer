@@ -24,6 +24,15 @@ export interface SiteSettings {
   navigation: {
     headerLinks: { name: string; path: string }[];
   };
+  payments: {
+    codActive: boolean;
+    bkashActive: boolean;
+    bkashNumber: string;
+    nagadActive: boolean;
+    nagadNumber: string;
+    rocketActive: boolean;
+    rocketNumber: string;
+  };
 }
 
 export interface Category {

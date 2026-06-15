@@ -47,7 +47,7 @@ export default function BrandForm() {
           ...formData,
           order: Number(formData.order),
           updatedAt: serverTimestamp()
-        });
+        }, { merge: true });
         toast.success("Brand updated successfully");
       } else {
         await addDoc(collection(db, 'brands'), {
@@ -58,9 +58,9 @@ export default function BrandForm() {
         toast.success("Brand added successfully");
       }
       navigate('/admin/brands');
-    } catch (e) {
+    } catch (e: any) {
       console.error(e);
-      toast.error("Failed to save brand");
+      toast.error(`Failed to save brand: ${e.message || 'Unknown error'}`);
     } finally {
       setLoading(false);
     }

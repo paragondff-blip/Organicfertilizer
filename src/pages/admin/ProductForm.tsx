@@ -68,7 +68,7 @@ export default function ProductForm() {
       const data = {
         ...formData,
         updatedAt: serverTimestamp(),
-        createdAt: id ? formData.createdAt : serverTimestamp(),
+        createdAt: id ? (formData.createdAt || serverTimestamp()) : serverTimestamp(),
       };
 
       if (id) {
@@ -79,9 +79,9 @@ export default function ProductForm() {
         toast.success("Product added successfully");
       }
       navigate('/admin/products');
-    } catch (e) {
-      console.error(e);
-      toast.error("Error saving product");
+    } catch (e: any) {
+      console.error("Firestore Error:", e);
+      toast.error(`Error saving product: ${e.message || 'Unknown error'}`);
     } finally {
       setLoading(false);
     }

@@ -45,6 +45,15 @@ export function SiteProvider({ children }: { children: React.ReactNode }) {
         { name: 'About Us', path: '/about' },
         { name: 'Contact', path: '/contact' }
       ]
+    },
+    payments: {
+      codActive: true,
+      bkashActive: true,
+      bkashNumber: '01XXXXXXXXX',
+      nagadActive: true,
+      nagadNumber: '01XXXXXXXXX',
+      rocketActive: false,
+      rocketNumber: ''
     }
   });
   const [loading, setLoading] = useState(true);

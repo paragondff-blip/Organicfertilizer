@@ -1,11 +1,12 @@
 import { Routes, Route, Link, useLocation, Navigate, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, ShoppingBag, Users, Tag, BarChart3, Settings, LogOut, PackagePlus, Image as ImageIcon } from 'lucide-react';
+import { LayoutDashboard, ShoppingBag, Users, Tag, BarChart3, Settings, LogOut, PackagePlus, Image as ImageIcon, MessageSquare, Database } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { motion } from 'motion/react';
 import { useState, useEffect } from 'react';
 import { db } from '../../lib/firebase';
-import { collection, getDocs } from 'firebase/firestore';
+import { collection, getDocs, addDoc, serverTimestamp, setDoc, doc } from 'firebase/firestore';
 import { useSite } from '../../context/SiteContext';
+import { toast } from 'react-toastify';
 import ProductList from './ProductList';
 import ProductForm from './ProductForm';
 import BannerList from './BannerList';
@@ -20,6 +21,7 @@ import OffersList from './OffersList';
 import OfferForm from './OfferForm';
 import SettingsManager from './SettingsManager';
 import Analytics from './Analytics';
+import ContactMessages from './ContactMessages';
 
 export default function AdminDashboard() {
   const { isAdmin, loading, logout } = useAuth();
@@ -40,6 +42,7 @@ export default function AdminDashboard() {
     { name: 'Orders', path: '/admin/orders', icon: ShoppingBag },
     { name: 'Customers', path: '/admin/customers', icon: Users },
     { name: 'Analytics', path: '/admin/analytics', icon: BarChart3 },
+    { name: 'Messages', path: '/admin/messages', icon: MessageSquare },
     { name: 'Site Settings', path: '/admin/settings', icon: Settings },
   ];
 
@@ -147,6 +150,7 @@ export default function AdminDashboard() {
            <Route path="offers/add" element={<OfferForm />} />
            <Route path="offers/edit/:id" element={<OfferForm />} />
            <Route path="analytics" element={<Analytics />} />
+           <Route path="messages" element={<ContactMessages />} />
            <Route path="settings" element={<SettingsManager />} />
            <Route path="*" element={<div className="bg-slate-800 p-20 rounded-3xl text-center text-slate-500 font-display text-2xl font-bold border border-slate-700 border-dashed">Module Implementation in Progress</div>} />
         </Routes>
@@ -191,8 +195,126 @@ function AdminOverview() {
     { label: 'Live Banners', value: counts.banners.toString(), change: 'Active', icon: Tag, color: 'text-orange-400' },
   ];
 
+  const seedDemoData = async () => {
+    if (!window.confirm("This will add demo Categories, Brands, Products, Banners, and Offers. Continue?")) return;
+    try {
+      toast.info("Seeding data... please wait.");
+      
+      // 1. Add Demo Categories
+      const categories = [
+        { name: 'Natural Fertilizers', slug: 'natural-fertilizers', description: 'Best organic fertilizers for your farm.' },
+        { name: 'Eco Seeds', slug: 'eco-seeds', description: 'High-quality organic seeds.' },
+        { name: 'Organic Pesticides', slug: 'organic-pesticides', description: 'Safe pesticides for healthy plants.' },
+        { name: 'Fruit Saplings', slug: 'fruit-saplings', description: 'Healthy fruit tree saplings.' },
+        { name: 'Farm Tools', slug: 'farm-tools', description: 'Essential tools for modern organic farming.' }
+      ];
+      for (const cat of categories) {
+        await addDoc(collection(db, 'categories'), { ...cat, order: 1, createdAt: serverTimestamp() });
+      }
+
+      // 2. Add Demo Brands
+      const brands = [
+        { name: 'GreenGrow', description: 'Premium organic solutions.', logo: 'https://images.unsplash.com/photo-1599305090598-fe179d501227?auto=format&fit=crop&w=200&q=80' },
+        { name: 'PureLeaf', description: 'Nature matched quality.', logo: 'https://images.unsplash.com/photo-1490474418585-ba9bad8fd0ea?auto=format&fit=crop&w=200&q=80' },
+        { name: 'EcoFarm', description: 'Sustainable agriculture.', logo: 'https://images.unsplash.com/photo-1500937386664-56d1dfef3854?auto=format&fit=crop&w=200&q=80' }
+      ];
+      for (const brand of brands) {
+        await addDoc(collection(db, 'brands'), { ...brand, order: 1, createdAt: serverTimestamp() });
+      }
+
+      // 3. Add Demo Products
+      const products = [
+        { 
+          name: 'Premium Cow Dung Manure', brand: 'GreenGrow', categoryName: 'Natural Fertilizers', categoryId: 'natural-fertilizers', price: 250, stock: 100, 
+          description: 'Finely aged organic manure for high yield.', 
+          images: ['https://images.unsplash.com/photo-1585314062340-f1a5a7c9328d?auto=format&fit=crop&w=800&q=80'],
+          isNew: true, isBestSeller: true 
+        },
+        { 
+          name: 'Vermicompost Gold', brand: 'GreenGrow', categoryName: 'Natural Fertilizers', categoryId: 'natural-fertilizers', price: 300, stock: 80, 
+          description: 'Worm-processed nutrient-rich earth fertilizer.', 
+          images: ['https://images.unsplash.com/photo-1582213726895-32ac44edfb5d?auto=format&fit=crop&w=800&q=80'],
+          isNew: false, isBestSeller: true 
+        },
+        { 
+          name: 'Neem Oil Spray', brand: 'PureLeaf', categoryName: 'Organic Pesticides', categoryId: 'organic-pesticides', price: 420, stock: 50, 
+          description: 'Natural protection against garden pests.', 
+          images: ['https://images.unsplash.com/photo-1623912154378-6593a890479d?auto=format&fit=crop&w=800&q=80'],
+          isNew: true, isBestSeller: false 
+        },
+        { 
+          name: 'Organic Tomato Seeds', brand: 'EcoFarm', categoryName: 'Eco Seeds', categoryId: 'eco-seeds', price: 120, stock: 200, 
+          description: 'High-germination native tomato seeds.', 
+          images: ['https://images.unsplash.com/photo-1592841200221-a6898f307baa?auto=format&fit=crop&w=800&q=80'],
+          isNew: true, isBestSeller: true 
+        },
+        { 
+          name: 'Chili Hybrid Seeds', brand: 'EcoFarm', categoryName: 'Eco Seeds', categoryId: 'eco-seeds', price: 150, stock: 150, 
+          description: 'Spicy hybrid seeds for all seasons.', 
+          images: ['https://images.unsplash.com/photo-1563513330615-a4112345337e?auto=format&fit=crop&w=800&q=80'],
+          isNew: false, isBestSeller: false 
+        },
+        { 
+          name: 'Mango Grafted Sapling', brand: 'GreenGrow', categoryName: 'Fruit Saplings', categoryId: 'fruit-saplings', price: 550, stock: 30, 
+          description: 'Ready-to-plant Amrapali mango sapling.', 
+          images: ['https://images.unsplash.com/photo-1557800636-894a64c1696f?auto=format&fit=crop&w=800&q=80'],
+          isNew: true, isBestSeller: true 
+        },
+        { 
+          name: 'Organic Bone Meal', brand: 'PureLeaf', categoryName: 'Natural Fertilizers', categoryId: 'natural-fertilizers', price: 350, stock: 60, 
+          description: 'High phosphorus organic supplement.', 
+          images: ['https://images.unsplash.com/photo-1591857177580-dc82b9ac4e1e?auto=format&fit=crop&w=800&q=80'],
+          isNew: false, isBestSeller: false 
+        },
+        { 
+          name: 'Hand Trowel', brand: 'EcoFarm', categoryName: 'Farm Tools', categoryId: 'farm-tools', price: 180, stock: 40, 
+          description: 'Stainless steel garden trowel with wooden handle.', 
+          images: ['https://images.unsplash.com/photo-1617576621084-2453b34200bc?auto=format&fit=crop&w=800&q=80'],
+          isNew: true, isBestSeller: false 
+        }
+      ];
+      for (const prod of products) {
+        await addDoc(collection(db, 'products'), { ...prod, createdAt: serverTimestamp(), updatedAt: serverTimestamp() });
+      }
+
+      // 4. Add Demo Banners
+      const banners = [
+        { title: 'Big Summer Sale', subtitle: 'Up to 50% Off on Fertilizers', link: '/shop', image: 'https://images.unsplash.com/photo-1523348837708-15d4a09cfac2?auto=format&fit=crop&w=1600&q=80', active: true },
+        { title: 'Pure Organic Seeds', subtitle: 'New Season Arrivals', link: '/shop', image: 'https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=1600&q=80', active: true },
+        { title: 'Modern Farm Tools', subtitle: 'Work Smarter, Not Harder', link: '/shop', image: 'https://images.unsplash.com/photo-1622383563227-04401ab4e5ea?auto=format&fit=crop&w=1600&q=80', active: true }
+      ];
+      for (const banner of banners) {
+        await addDoc(collection(db, 'banners'), { ...banner, createdAt: serverTimestamp() });
+      }
+
+      // 5. Add Demo Offers
+      const offers = [
+        { code: 'SAVE10', discount: 10, type: 'percentage', minAmount: 500, active: true },
+        { code: 'WELCOME50', discount: 50, type: 'fixed', minAmount: 200, active: true },
+        { code: 'FREEHUNDRED', discount: 100, type: 'fixed', minAmount: 1000, active: true }
+      ];
+      for (const offer of offers) {
+        await addDoc(collection(db, 'coupons'), { ...offer, createdAt: serverTimestamp() });
+      }
+
+      toast.success("All demo data seeded successfully!");
+      window.location.reload();
+    } catch (e: any) {
+      console.error(e);
+      toast.error(`Failed to seed data: ${e.message}`);
+    }
+  };
+
   return (
     <div className="space-y-12">
+      <div className="flex justify-end">
+         <button 
+           onClick={seedDemoData}
+           className="flex items-center gap-2 bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white px-4 py-2 rounded-xl border border-slate-700 transition-all text-xs font-bold uppercase tracking-widest"
+         >
+           <Database className="w-4 h-4" /> Seed Demo Data
+         </button>
+      </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {stats.map((s, i) => (
           <motion.div 

@@ -3,7 +3,7 @@ import { db } from '../../lib/firebase';
 import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
 import { toast } from 'react-toastify';
 import { motion } from 'motion/react';
-import { Save, FileText, HelpCircle, Shield, Truck, RefreshCcw, Globe, LayoutDashboard, Trash2 } from 'lucide-react';
+import { Save, FileText, HelpCircle, Shield, Truck, RefreshCcw, Globe, LayoutDashboard, Trash2, CreditCard } from 'lucide-react';
 import ImageUpload from '../../components/admin/ImageUpload';
 
 export default function SettingsManager() {
@@ -60,6 +60,15 @@ export default function SettingsManager() {
     },
     navigation: {
       headerLinks: [{ name: '', path: '' }]
+    },
+    payments: {
+      codActive: true,
+      bkashActive: true,
+      bkashNumber: '',
+      nagadActive: true,
+      nagadNumber: '',
+      rocketActive: false,
+      rocketNumber: ''
     }
   });
 
@@ -67,7 +76,7 @@ export default function SettingsManager() {
     const fetchAllSettings = async () => {
       setFetching(true);
       try {
-        const docKeys = ['general', 'company', 'privacy', 'terms', 'refund', 'shipping', 'faq', 'home', 'navigation'];
+        const docKeys = ['general', 'company', 'privacy', 'terms', 'refund', 'shipping', 'faq', 'home', 'navigation', 'payments'];
         const newSettings = { ...settings };
         
         for (const key of docKeys) {
@@ -236,6 +245,7 @@ export default function SettingsManager() {
   const tabs = [
     { id: 'general', label: 'Identity', icon: Globe },
     { id: 'navigation', label: 'Navigation', icon: FileText },
+    { id: 'payments', label: 'Payments', icon: CreditCard },
     { id: 'home', label: 'Home Page', icon: LayoutDashboard },
     { id: 'company', label: 'Our Company', icon: FileText },
     { id: 'faq', label: 'FAQ', icon: HelpCircle },
@@ -368,6 +378,103 @@ export default function SettingsManager() {
                     className="w-full bg-slate-900 border border-slate-700 rounded-xl py-3 px-4 text-white focus:outline-none focus:border-primary text-sm"
                     placeholder="https://twitter.com/..."
                   />
+                </div>
+              </div>
+            </div>
+          </div>
+        ) : activeTab === 'payments' ? (
+          <div className="space-y-12">
+            <div className="bg-slate-900/50 p-8 rounded-3xl border border-slate-700 space-y-8">
+              <div className="flex items-center justify-between border-b border-white/5 pb-4">
+                <div className="space-y-1">
+                  <h3 className="text-xl font-display font-bold text-white">Cash on Delivery (COD)</h3>
+                  <p className="text-slate-400 text-xs">Allow users to pay when they receive the product.</p>
+                </div>
+                <label className="relative inline-flex items-center cursor-pointer">
+                  <input 
+                    type="checkbox" 
+                    checked={settings.payments.codActive}
+                    onChange={(e) => setSettings({ ...settings, payments: { ...settings.payments, codActive: e.target.checked } })}
+                    className="sr-only peer" 
+                  />
+                  <div className="w-11 h-6 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+                </label>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-4">
+                <div className="p-6 bg-slate-900 rounded-2xl border border-slate-700 space-y-6">
+                  <div className="flex items-center justify-between">
+                    <h4 className="font-bold text-slate-200">bKash Payment</h4>
+                    <label className="relative inline-flex items-center cursor-pointer scale-75">
+                      <input 
+                        type="checkbox" 
+                        checked={settings.payments.bkashActive}
+                        onChange={(e) => setSettings({ ...settings, payments: { ...settings.payments, bkashActive: e.target.checked } })}
+                        className="sr-only peer" 
+                      />
+                      <div className="w-11 h-6 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#e2136e]"></div>
+                    </label>
+                  </div>
+                  <div className="space-y-2">
+                    <label className="block text-[10px] font-bold uppercase text-slate-500">bKash Personal Number</label>
+                    <input 
+                      type="text" 
+                      value={settings.payments.bkashNumber}
+                      onChange={(e) => setSettings({ ...settings, payments: { ...settings.payments, bkashNumber: e.target.value } })}
+                      className="w-full bg-slate-800 border border-slate-700 rounded-xl py-3 px-4 text-white focus:outline-none focus:border-primary text-sm"
+                      placeholder="01712345678"
+                    />
+                  </div>
+                </div>
+
+                <div className="p-6 bg-slate-900 rounded-2xl border border-slate-700 space-y-6">
+                  <div className="flex items-center justify-between">
+                    <h4 className="font-bold text-slate-200">Nagad Payment</h4>
+                    <label className="relative inline-flex items-center cursor-pointer scale-75">
+                      <input 
+                        type="checkbox" 
+                        checked={settings.payments.nagadActive}
+                        onChange={(e) => setSettings({ ...settings, payments: { ...settings.payments, nagadActive: e.target.checked } })}
+                        className="sr-only peer" 
+                      />
+                      <div className="w-11 h-6 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#f7941d]"></div>
+                    </label>
+                  </div>
+                  <div className="space-y-2">
+                    <label className="block text-[10px] font-bold uppercase text-slate-500">Nagad Personal Number</label>
+                    <input 
+                      type="text" 
+                      value={settings.payments.nagadNumber}
+                      onChange={(e) => setSettings({ ...settings, payments: { ...settings.payments, nagadNumber: e.target.value } })}
+                      className="w-full bg-slate-800 border border-slate-700 rounded-xl py-3 px-4 text-white focus:outline-none focus:border-primary text-sm"
+                      placeholder="01712345678"
+                    />
+                  </div>
+                </div>
+
+                <div className="p-6 bg-slate-900 rounded-2xl border border-slate-700 space-y-6">
+                  <div className="flex items-center justify-between">
+                    <h4 className="font-bold text-slate-200">Rocket Payment</h4>
+                    <label className="relative inline-flex items-center cursor-pointer scale-75">
+                      <input 
+                        type="checkbox" 
+                        checked={settings.payments.rocketActive}
+                        onChange={(e) => setSettings({ ...settings, payments: { ...settings.payments, rocketActive: e.target.checked } })}
+                        className="sr-only peer" 
+                      />
+                      <div className="w-11 h-6 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#8c3494]"></div>
+                    </label>
+                  </div>
+                  <div className="space-y-2">
+                    <label className="block text-[10px] font-bold uppercase text-slate-500">Rocket Personal Number</label>
+                    <input 
+                      type="text" 
+                      value={settings.payments.rocketNumber}
+                      onChange={(e) => setSettings({ ...settings, payments: { ...settings.payments, rocketNumber: e.target.value } })}
+                      className="w-full bg-slate-800 border border-slate-700 rounded-xl py-3 px-4 text-white focus:outline-none focus:border-primary text-sm"
+                      placeholder="01712345678-x"
+                    />
+                  </div>
                 </div>
               </div>
             </div>

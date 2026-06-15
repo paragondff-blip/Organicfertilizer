@@ -53,9 +53,9 @@ export default function OfferForm() {
         toast.success('Offer created successfully');
       }
       navigate('/admin/offers');
-    } catch (e) {
+    } catch (e: any) {
       console.error(e);
-      toast.error('Operation failed');
+      toast.error(`Operation failed: ${e.message || 'Unknown error'}`);
     } finally {
       setLoading(false);
     }

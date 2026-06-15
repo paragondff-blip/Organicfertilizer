@@ -50,16 +50,16 @@ export default function CategoryForm() {
       };
 
       if (id) {
-        await setDoc(doc(db, 'categories', id), data);
+        await setDoc(doc(db, 'categories', id), data, { merge: true });
         toast.success("Category updated");
       } else {
-        await addDoc(collection(db, 'categories'), data);
+        await addDoc(collection(db, 'categories'), { ...data, createdAt: serverTimestamp() });
         toast.success("Category added");
       }
       navigate('/admin/categories');
-    } catch (e) {
+    } catch (e: any) {
       console.error(e);
-      toast.error("Error saving category");
+      toast.error(`Error saving category: ${e.message || 'Unknown error'}`);
     } finally {
       setLoading(false);
     }

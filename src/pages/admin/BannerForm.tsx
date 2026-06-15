@@ -47,19 +47,20 @@ export default function BannerForm() {
       const data = {
         ...formData,
         updatedAt: serverTimestamp(),
+        createdAt: id ? (formData.createdAt || serverTimestamp()) : serverTimestamp(),
       };
 
       if (id) {
         await setDoc(doc(db, 'banners', id), data);
         toast.success("Banner updated successfully");
       } else {
-        await addDoc(collection(db, 'banners'), { ...data, createdAt: serverTimestamp() });
+        await addDoc(collection(db, 'banners'), data);
         toast.success("New banner added successfully");
       }
       navigate('/admin/banners');
-    } catch (e) {
-      console.error(e);
-      toast.error("Error saving banner");
+    } catch (e: any) {
+      console.error("Firestore Error:", e);
+      toast.error(`Error saving banner: ${e.message || 'Unknown error'}`);
     } finally {
       setLoading(false);
     }

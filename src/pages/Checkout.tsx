@@ -7,9 +7,11 @@ import { CreditCard, Truck, MapPin, CheckCircle2, ChevronRight, Lock } from 'luc
 import { toast } from 'react-toastify';
 import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
 import { db } from '../lib/firebase';
+import { useSite } from '../context/SiteContext';
 
 export default function Checkout() {
   const { cart, cartTotal, clearCart } = useCart();
+  const { settings } = useSite();
   const { user, profile } = useAuth();
   const navigate = useNavigate();
   const [step, setStep] = useState(1);
@@ -22,7 +24,8 @@ export default function Checkout() {
     city: '',
     zipCode: '',
     phone: profile?.phoneNumber || '',
-    paymentMethod: 'card'
+    paymentMethod: 'cod',
+    transactionId: ''
   });
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -36,15 +39,21 @@ export default function Checkout() {
       return;
     }
 
+    if (formData.paymentMethod !== 'cod' && !formData.transactionId) {
+      toast.error("Please enter the Transaction ID for your payment");
+      return;
+    }
+
     setLoading(true);
     try {
       const orderData = {
         userId: user.uid,
         userName: formData.fullName,
+        email: formData.email,
         items: cart,
         total: cartTotal,
         status: 'pending',
-        paymentStatus: 'unpaid',
+        paymentStatus: formData.paymentMethod === 'cod' ? 'unpaid' : 'pending_verification',
         shippingAddress: {
           address: formData.address,
           city: formData.city,
@@ -52,6 +61,7 @@ export default function Checkout() {
           phone: formData.phone
         },
         paymentMethod: formData.paymentMethod,
+        transactionId: formData.transactionId || null,
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp()
       };
@@ -59,7 +69,11 @@ export default function Checkout() {
       await addDoc(collection(db, 'orders'), orderData);
       
       clearCart();
-      toast.success("Order placed successfully!");
+      if (formData.paymentMethod === 'cod') {
+        toast.success("Order successful! We will deliver soon.");
+      } else {
+        toast.success("Payment submitted! We will verify and process your order.");
+      }
       navigate('/dashboard/orders');
     } catch (error) {
       console.error("Order error:", error);
@@ -125,27 +139,93 @@ export default function Checkout() {
                   <h2 className="text-3xl font-display font-bold">Payment Method</h2>
                 </div>
                 <div className="grid grid-cols-1 gap-4">
-                  {[
-                    { id: 'card', label: 'Credit / Debit Card', icon: CreditCard },
-                    { id: 'paypal', label: 'PayPal', icon: CheckCircle2 },
-                    { id: 'bkash', label: 'bKash / Nagad', icon: CheckCircle2 }
-                  ].map(method => (
+                  {settings.payments.codActive && (
                     <label 
-                      key={method.id}
-                      className={`flex items-center gap-4 p-6 rounded-2xl border-2 cursor-pointer transition-all ${formData.paymentMethod === method.id ? 'border-secondary bg-secondary/5' : 'border-gray-100 hover:border-gray-200'}`}
+                      className={`flex items-center gap-4 p-6 rounded-2xl border-2 cursor-pointer transition-all ${formData.paymentMethod === 'cod' ? 'border-secondary bg-secondary/5' : 'border-gray-100 hover:border-gray-200'}`}
                     >
-                      <input 
-                        type="radio" 
-                        name="paymentMethod" 
-                        value={method.id} 
-                        checked={formData.paymentMethod === method.id}
-                        onChange={handleInputChange}
-                        className="w-5 h-5 text-secondary focus:ring-secondary"
-                      />
-                      <method.icon className={`w-6 h-6 ${formData.paymentMethod === method.id ? 'text-secondary' : 'text-gray-400'}`} />
-                      <span className="font-bold text-lg">{method.label}</span>
+                      <input type="radio" name="paymentMethod" value="cod" checked={formData.paymentMethod === 'cod'} onChange={handleInputChange} className="w-5 h-5 text-secondary focus:ring-secondary" />
+                      <Truck className={`w-6 h-6 ${formData.paymentMethod === 'cod' ? 'text-secondary' : 'text-gray-400'}`} />
+                      <div className="flex flex-col">
+                        <span className="font-bold text-lg">Cash on Delivery</span>
+                        <span className="text-xs text-gray-400">Pay when you receive the product</span>
+                      </div>
                     </label>
-                  ))}
+                  )}
+                  {settings.payments.bkashActive && (
+                    <label 
+                      className={`flex flex-col gap-4 p-6 rounded-2xl border-2 cursor-pointer transition-all ${formData.paymentMethod === 'bkash' ? 'border-[#e2136e] bg-[#e2136e]/5' : 'border-gray-100 hover:border-gray-200'}`}
+                    >
+                      <div className="flex items-center gap-4">
+                        <input type="radio" name="paymentMethod" value="bkash" checked={formData.paymentMethod === 'bkash'} onChange={handleInputChange} className="w-5 h-5 text-[#e2136e] focus:ring-[#e2136e]" />
+                        <span className="font-bold text-lg">bKash</span>
+                      </div>
+                      {formData.paymentMethod === 'bkash' && (
+                        <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} className="space-y-4 pt-2 border-t border-[#e2136e]/20">
+                          <p className="text-xs text-gray-500">Please Send Money (Personal) to: <b className="text-gray-900">{settings.payments.bkashNumber}</b></p>
+                          <div className="space-y-2">
+                             <label className="text-[10px] font-bold uppercase tracking-widest text-[#e2136e]">Transaction ID</label>
+                             <input 
+                               name="transactionId" 
+                               value={formData.transactionId} 
+                               onChange={handleInputChange} 
+                               placeholder="Enter bKash TrxID"
+                               className="w-full bg-white border border-[#e2136e]/20 rounded-xl py-3 px-4 focus:ring-2 focus:ring-[#e2136e]/20 outline-none" 
+                             />
+                          </div>
+                        </motion.div>
+                      )}
+                    </label>
+                  )}
+                  {settings.payments.nagadActive && (
+                    <label 
+                      className={`flex flex-col gap-4 p-6 rounded-2xl border-2 cursor-pointer transition-all ${formData.paymentMethod === 'nagad' ? 'border-[#f7941d] bg-[#f7941d]/5' : 'border-gray-100 hover:border-gray-200'}`}
+                    >
+                      <div className="flex items-center gap-4">
+                        <input type="radio" name="paymentMethod" value="nagad" checked={formData.paymentMethod === 'nagad'} onChange={handleInputChange} className="w-5 h-5 text-[#f7941d] focus:ring-[#f7941d]" />
+                        <span className="font-bold text-lg">Nagad</span>
+                      </div>
+                      {formData.paymentMethod === 'nagad' && (
+                        <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} className="space-y-4 pt-2 border-t border-[#f7941d]/20">
+                          <p className="text-xs text-gray-500">Please Send Money (Personal) to: <b className="text-gray-900">{settings.payments.nagadNumber}</b></p>
+                          <div className="space-y-2">
+                             <label className="text-[10px] font-bold uppercase tracking-widest text-[#f7941d]">Transaction ID</label>
+                             <input 
+                               name="transactionId" 
+                               value={formData.transactionId} 
+                               onChange={handleInputChange} 
+                               placeholder="Enter Nagad TrxID"
+                               className="w-full bg-white border border-[#f7941d]/20 rounded-xl py-3 px-4 focus:ring-2 focus:ring-[#f7941d]/20 outline-none" 
+                             />
+                          </div>
+                        </motion.div>
+                      )}
+                    </label>
+                  )}
+                  {settings.payments.rocketActive && (
+                    <label 
+                      className={`flex flex-col gap-4 p-6 rounded-2xl border-2 cursor-pointer transition-all ${formData.paymentMethod === 'rocket' ? 'border-[#8c3494] bg-[#8c3494]/5' : 'border-gray-100 hover:border-gray-200'}`}
+                    >
+                      <div className="flex items-center gap-4">
+                        <input type="radio" name="paymentMethod" value="rocket" checked={formData.paymentMethod === 'rocket'} onChange={handleInputChange} className="w-5 h-5 text-[#8c3494] focus:ring-[#8c3494]" />
+                        <span className="font-bold text-lg">Rocket</span>
+                      </div>
+                      {formData.paymentMethod === 'rocket' && (
+                        <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} className="space-y-4 pt-2 border-t border-[#8c3494]/20">
+                          <p className="text-xs text-gray-500">Please Send Money (Personal) to: <b className="text-gray-900">{settings.payments.rocketNumber}</b></p>
+                          <div className="space-y-2">
+                             <label className="text-[10px] font-bold uppercase tracking-widest text-[#8c3494]">Transaction ID</label>
+                             <input 
+                               name="transactionId" 
+                               value={formData.transactionId} 
+                               onChange={handleInputChange} 
+                               placeholder="Enter Rocket TrxID"
+                               className="w-full bg-white border border-[#8c3494]/20 rounded-xl py-3 px-4 focus:ring-2 focus:ring-[#8c3494]/20 outline-none" 
+                             />
+                          </div>
+                        </motion.div>
+                      )}
+                    </label>
+                  )}
                 </div>
                 <div className="flex gap-4">
                   <button onClick={() => setStep(1)} className="btn-secondary flex-grow bg-gray-200 text-gray-600 hover:bg-gray-300">Back</button>
