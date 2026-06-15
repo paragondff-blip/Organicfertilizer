@@ -1,0 +1,6 @@
+{
+  "name": "Organic Fertilizer",
+  "description": "Premium organic fertilizer solutions for sustainable farming and gardening, featuring a full-featured shop, admin dashboard, and secure authentication.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
