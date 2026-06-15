@@ -30,18 +30,18 @@ export default function Footer() {
               </span>
             </Link>
             <p className="text-gray-400 leading-relaxed">
-              Experience the true taste of nature with our premium collection of handcrafted {settings.siteName.toLowerCase()}. Made with love and the finest ingredients.
+              {settings.footer.description || `Experience the true taste of nature with our premium collection of handcrafted products. Made with love and the finest ingredients.`}
             </p>
             <div className="flex space-x-4">
-              <a href={settings.footer.facebook} target="_blank" rel="noreferrer" className="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-primary transition-colors">
+              {settings.footer.facebook && <a href={settings.footer.facebook} target="_blank" rel="noreferrer" className="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-primary transition-colors">
                 <Facebook className="w-5 h-5 text-gray-400 hover:text-white" />
-              </a>
-              <a href={settings.footer.instagram} target="_blank" rel="noreferrer" className="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-secondary transition-colors">
+              </a>}
+              {settings.footer.instagram && <a href={settings.footer.instagram} target="_blank" rel="noreferrer" className="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-secondary transition-colors">
                 <Instagram className="w-5 h-5 text-gray-400 hover:text-white" />
-              </a>
-              <a href={settings.footer.twitter} target="_blank" rel="noreferrer" className="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-primary transition-colors">
+              </a>}
+              {settings.footer.twitter && <a href={settings.footer.twitter} target="_blank" rel="noreferrer" className="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-primary transition-colors">
                 <Twitter className="w-5 h-5 text-gray-400 hover:text-white" />
-              </a>
+              </a>}
             </div>
           </div>
 
@@ -49,11 +49,9 @@ export default function Footer() {
           <div>
             <h3 className="text-white font-display font-bold text-lg mb-6">Quick Links</h3>
             <ul className="space-y-4">
-              {settings.navigation.headerLinks.map((link, i) => (
+              {settings.footer.quickLinks?.map((link, i) => (
                 <li key={i}><Link to={link.path} className="hover:text-primary transition-colors">{link.name}</Link></li>
               ))}
-              <li><Link to="/faq" className="hover:text-primary transition-colors">FAQ</Link></li>
-              <li><Link to="/privacy" className="hover:text-primary transition-colors">Privacy Policy</Link></li>
               <li><Link to="/admin-login" className="text-secondary/60 hover:text-secondary transition-colors font-bold text-[10px] uppercase tracking-widest mt-4 block">Admin Console</Link></li>
             </ul>
           </div>
@@ -62,11 +60,9 @@ export default function Footer() {
           <div>
             <h3 className="text-white font-display font-bold text-lg mb-6">Categories</h3>
             <ul className="space-y-4">
-              <li><Link to="/shop" className="hover:text-secondary transition-colors">Featured</Link></li>
-              <li><Link to="/shop" className="hover:text-secondary transition-colors">Best Sellers</Link></li>
-              <li><Link to="/shop" className="hover:text-secondary transition-colors">Organic Mix</Link></li>
-              <li><Link to="/shop" className="hover:text-secondary transition-colors">Special Offers</Link></li>
-              <li><Link to="/shop" className="hover:text-secondary transition-colors">New Arrivals</Link></li>
+              {settings.footer.categories?.map((link, i) => (
+                <li key={i}><Link to={link.path} className="hover:text-secondary transition-colors">{link.name}</Link></li>
+              ))}
             </ul>
           </div>
 
@@ -91,7 +87,7 @@ export default function Footer() {
         </div>
 
         <div className="mt-16 pt-8 border-t border-gray-800 text-center">
-          <p>© 2026 {settings.siteName}. All rights reserved.</p>
+          <p>{settings.footer.rightsReserved || `© ${new Date().getFullYear()} ${settings.siteName}. All rights reserved.`}</p>
           <div className="mt-4 flex flex-wrap justify-center gap-4 text-xs grayscale opacity-50">
             <img src="https://upload.wikimedia.org/wikipedia/commons/b/b5/PayPal.svg" alt="PayPal" className="h-4" />
             <img src="https://upload.wikimedia.org/wikipedia/commons/5/5e/Visa_Inc._logo.svg" alt="Visa" className="h-4" />

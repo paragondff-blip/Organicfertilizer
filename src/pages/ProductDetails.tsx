@@ -113,17 +113,21 @@ export default function ProductDetails() {
           animate={{ opacity: 1, x: 0 }}
           className="space-y-6"
         >
-          <div className="aspect-square rounded-[3rem] overflow-hidden bg-white glass p-4">
-            <img 
-              src={product.images[0]} 
-              alt={product.name} 
-              className="w-full h-full object-cover rounded-[2.5rem]" 
-            />
+          <div className="aspect-square rounded-[3rem] overflow-hidden bg-slate-100 flex items-center justify-center p-4">
+            {product.images && product.images[0] ? (
+              <img 
+                src={product.images[0]} 
+                alt={product.name} 
+                className="w-full h-full object-cover rounded-[2.5rem]" 
+              />
+            ) : (
+              <span className="text-slate-400 font-bold uppercase tracking-widest text-lg">No Image</span>
+            )}
           </div>
           <div className="grid grid-cols-4 gap-4">
-            {product.images.map((img, i) => (
+            {product.images && product.images.length > 0 && product.images.map((img, i) => (
               <div key={i} className="aspect-square rounded-2xl overflow-hidden border-2 border-primary cursor-pointer">
-                <img src={img} alt={`${product.name} ${i}`} className="w-full h-full object-cover" />
+                {img ? <img src={img} alt={`${product.name} ${i}`} className="w-full h-full object-cover" /> : <div className="w-full h-full bg-slate-200"></div>}
               </div>
             ))}
           </div>
@@ -306,8 +310,12 @@ export default function ProductDetails() {
                 whileHover={{ y: -5 }}
                 className="glass rounded-3xl overflow-hidden group"
               >
-                <Link to={`/product/${prod.id}`} className="block relative aspect-square overflow-hidden">
-                  <img src={prod.images[0]} alt={prod.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+                <Link to={`/product/${prod.id}`} className="block relative aspect-square overflow-hidden bg-slate-100 flex items-center justify-center">
+                  {prod.images && prod.images[0] ? (
+                    <img src={prod.images[0]} alt={prod.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+                  ) : (
+                    <span className="text-slate-400 font-bold uppercase tracking-widest text-xs">No Image</span>
+                  )}
                 </Link>
                 <div className="p-5 space-y-2">
                   <h3 className="font-display font-bold text-sm truncate">

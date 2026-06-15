@@ -57,5 +57,6 @@ service cloud.firestore {
     match /settings/{id} { allow read, write: if true; }
     match /brands/{id} { allow read, write: if true; }
     match /contacts/{id} { allow create, read, write: if true; }
+    match /test/{id} { allow read, write: if true; }
   }
 }

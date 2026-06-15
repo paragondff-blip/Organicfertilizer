@@ -20,15 +20,17 @@ export default function ProductForm() {
     description: '',
     price: 0,
     stock: 0,
-    categoryId: 'classic',
-    categoryName: 'Classic Biscuits',
-    brand: 'Organic Biscuits',
+    categoryId: 'all',
+    categoryName: '',
+    brand: '',
     images: [''],
     ingredients: '',
     nutritionInfo: '',
     isNew: true,
     isBestSeller: false,
     discountPrice: 0,
+    rating: 5,
+    reviewsCount: 0,
   });
 
   useEffect(() => {
@@ -167,7 +169,7 @@ export default function ProductForm() {
               />
             </div>
             <div className="space-y-2">
-              <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400 ml-1">Category</label>
+              <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400 ml-1">Category Link</label>
               <select 
                 value={formData.categoryId}
                 onChange={(e) => {
@@ -182,6 +184,37 @@ export default function ProductForm() {
                   <option key={c.id} value={c.slug}>{c.name}</option>
                 ))}
               </select>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="space-y-2">
+              <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400 ml-1">Label (Text above Name)</label>
+              <input 
+                type="text" 
+                value={formData.categoryName || ''}
+                onChange={(e) => setFormData({...formData, categoryName: e.target.value})}
+                placeholder="e.g. Classic Biscuits"
+                className="w-full bg-slate-900 border border-slate-700 rounded-2xl py-4 px-6 text-white outline-none focus:border-primary"
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400 ml-1">Display Rating (Stars)</label>
+              <input 
+                type="number" step="0.1" min="0" max="5" 
+                value={formData.rating || 5}
+                onChange={(e) => setFormData({...formData, rating: parseFloat(e.target.value)})}
+                className="w-full bg-slate-900 border border-slate-700 rounded-2xl py-4 px-6 text-white outline-none focus:border-primary"
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400 ml-1">Number of Reviews</label>
+              <input 
+                type="number" 
+                value={formData.reviewsCount || 0}
+                onChange={(e) => setFormData({...formData, reviewsCount: parseInt(e.target.value)})}
+                className="w-full bg-slate-900 border border-slate-700 rounded-2xl py-4 px-6 text-white outline-none focus:border-primary"
+              />
             </div>
           </div>
 

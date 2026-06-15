@@ -4,7 +4,7 @@ import { useAuth } from '../../context/AuthContext';
 import { motion } from 'motion/react';
 import { useState, useEffect } from 'react';
 import { db } from '../../lib/firebase';
-import { collection, getDocs, addDoc, serverTimestamp, setDoc, doc } from 'firebase/firestore';
+import { collection, getDocs, addDoc, serverTimestamp, query, orderBy, limit } from 'firebase/firestore';
 import { useSite } from '../../context/SiteContext';
 import { toast } from 'react-toastify';
 import ProductList from './ProductList';
@@ -166,9 +166,10 @@ function AdminOverview() {
     customers: 0,
     banners: 0
   });
+  const [recentOrders, setRecentOrders] = useState<any[]>([]);
 
   useEffect(() => {
-    const fetchCounts = async () => {
+    const fetchData = async () => {
       try {
         const pSnap = await getDocs(collection(db, 'products'));
         const oSnap = await getDocs(collection(db, 'orders'));
@@ -181,11 +182,15 @@ function AdminOverview() {
           customers: cSnap.size,
           banners: bSnap.size
         });
+
+        const recentQ = query(collection(db, 'orders'), orderBy('createdAt', 'desc'), limit(4));
+        const recentSnap = await getDocs(recentQ);
+        setRecentOrders(recentSnap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
       } catch (e) {
         console.error(e);
       }
     };
-    fetchCounts();
+    fetchData();
   }, []);
 
   const stats = [
@@ -288,13 +293,13 @@ function AdminOverview() {
       }
 
       // 5. Add Demo Offers
-      const offers = [
-        { code: 'SAVE10', discount: 10, type: 'percentage', minAmount: 500, active: true },
-        { code: 'WELCOME50', discount: 50, type: 'fixed', minAmount: 200, active: true },
-        { code: 'FREEHUNDRED', discount: 100, type: 'fixed', minAmount: 1000, active: true }
+      const offersList = [
+        { code: 'SAVE10', discountType: 'percentage', discountValue: 10, minPurchase: 500, usageLimit: 100, usageCount: 0, active: true },
+        { code: 'WELCOME50', discountType: 'fixed', discountValue: 50, minPurchase: 200, usageLimit: 50, usageCount: 0, active: true },
+        { code: 'FREEHUNDRED', discountType: 'fixed', discountValue: 100, minPurchase: 1000, usageLimit: 10, usageCount: 0, active: true }
       ];
-      for (const offer of offers) {
-        await addDoc(collection(db, 'coupons'), { ...offer, createdAt: serverTimestamp() });
+      for (const offer of offersList) {
+        await addDoc(collection(db, 'offers'), { ...offer, createdAt: serverTimestamp() });
       }
 
       toast.success("All demo data seeded successfully!");
@@ -342,23 +347,33 @@ function AdminOverview() {
         <div className="bg-slate-800 p-8 rounded-3xl border border-slate-700 space-y-6">
           <h3 className="text-xl font-display font-bold">Recent Orders</h3>
           <div className="space-y-4">
-             {[1,2,3,4].map(idx => (
-               <div key={idx} className="flex items-center justify-between p-4 bg-slate-900/50 rounded-2xl border border-slate-700">
-                  <div className="flex items-center gap-4">
-                    <div className="w-10 h-10 rounded-full bg-slate-700 flex items-center justify-center font-bold">#O4</div>
-                    <div>
-                      <p className="font-bold text-sm">Customer Name</p>
-                      <p className="text-[10px] text-slate-500 font-bold uppercase">Today at 10:45 AM</p>
+             {recentOrders.length === 0 ? (
+               <p className="text-sm text-slate-500 py-4 text-center">No recent orders found.</p>
+             ) : (
+               recentOrders.map((order, idx) => (
+                 <div key={order.id || idx} className="flex items-center justify-between p-4 bg-slate-900/50 rounded-2xl border border-slate-700">
+                    <div className="flex items-center gap-4">
+                      <div className="w-10 h-10 rounded-full bg-slate-700 flex items-center justify-center font-bold">
+                        #{order.id ? order.id.slice(0, 3).toUpperCase() : 'N/A'}
+                      </div>
+                      <div>
+                        <p className="font-bold text-sm truncate max-w-[120px]">{order.customerInfo?.name || 'Unknown'}</p>
+                        <p className="text-[10px] text-slate-500 font-bold uppercase">{order.createdAt ? new Date(order.createdAt.toDate()).toLocaleDateString() : 'N/A'}</p>
+                      </div>
                     </div>
-                  </div>
-                  <div className="text-right">
-                    <p className="font-bold text-sm text-primary">৳45.99</p>
-                    <span className="text-[8px] font-bold uppercase tracking-widest px-2 py-0.5 bg-green-900/50 text-green-400 rounded">Paid</span>
-                  </div>
-               </div>
-             ))}
+                    <div className="text-right">
+                      <p className="font-bold text-sm text-primary">৳{order.total || 0}</p>
+                      <span className={`text-[8px] font-bold uppercase tracking-widest px-2 py-0.5 rounded ${order.status === 'delivered' ? 'bg-green-900/50 text-green-400' : 'bg-orange-900/50 text-orange-400'}`}>
+                        {order.status || 'Pending'}
+                      </span>
+                    </div>
+                 </div>
+               ))
+             )}
           </div>
-          <button className="w-full py-4 text-xs font-bold uppercase tracking-widest text-slate-500 hover:text-white transition-colors border-t border-slate-700 border-dashed pt-4">View All Transactions</button>
+          <Link to="/admin/orders" className="block text-center w-full py-4 text-xs font-bold uppercase tracking-widest text-slate-500 hover:text-white transition-colors border-t border-slate-700 border-dashed pt-4">
+            View All Transactions
+          </Link>
         </div>
 
         <div className="bg-slate-800 p-8 rounded-3xl border border-slate-700 flex flex-col justify-center items-center text-center space-y-4">
@@ -367,7 +382,7 @@ function AdminOverview() {
            </div>
            <h3 className="text-xl font-display font-bold">Sales Analytics</h3>
            <p className="text-slate-400 text-sm max-w-xs">Detailed visual reports and forecasting data will be available as more orders are processed.</p>
-           <button className="btn-primary">Generate Monthly PDF</button>
+           <button onClick={() => toast.info('PDF generation will be available once enough data is tracked.')} className="btn-primary">Generate Monthly PDF</button>
         </div>
       </div>
     </div>

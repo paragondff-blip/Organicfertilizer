@@ -85,7 +85,13 @@ export default function ProductList() {
                 >
                   <td className="px-8 py-6">
                     <div className="flex items-center gap-4">
-                      <img src={p.images[0]} alt="" className="w-12 h-12 rounded-xl object-cover border border-slate-600" />
+                      <div className="w-12 h-12 rounded-xl object-cover border border-slate-600 bg-slate-900 flex items-center justify-center overflow-hidden">
+                        {p.images && p.images[0] ? (
+                          <img src={p.images[0]} alt="" className="w-full h-full object-cover" />
+                        ) : (
+                          <span className="text-[8px] font-bold text-slate-500 uppercase text-center leading-tight">No Img</span>
+                        )}
+                      </div>
                       <div>
                         <p className="font-bold text-white text-sm">{p.name}</p>
                         <p className="text-[10px] text-slate-500">{p.brand}</p>

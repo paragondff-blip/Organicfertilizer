@@ -57,8 +57,8 @@ export default function Cart() {
                 exit={{ opacity: 0, scale: 0.95 }}
                 className="glass p-6 rounded-[2rem] flex flex-col sm:flex-row items-center gap-8 border-none"
               >
-                <div className="w-32 h-32 rounded-2xl overflow-hidden shrink-0">
-                  <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
+                <div className="w-32 h-32 rounded-2xl overflow-hidden shrink-0 bg-slate-100 flex items-center justify-center">
+                  {item.image ? <img src={item.image} alt={item.name} className="w-full h-full object-cover" /> : <span className="text-slate-400 font-bold text-xs uppercase">No Img</span>}
                 </div>
                 
                 <div className="flex-grow space-y-2 text-center sm:text-left">

@@ -128,7 +128,7 @@ export default function Orders() {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                   {order.items.slice(0, 4).map((item, idx) => (
                     <div key={idx} className="flex items-center gap-4 bg-gray-50 p-3 rounded-2xl">
-                      <img src={item.image} alt={item.name} className="w-12 h-12 rounded-lg object-cover shrink-0" />
+                      {item.image ? <img src={item.image} alt={item.name} className="w-12 h-12 rounded-lg object-cover shrink-0" /> : <div className="w-12 h-12 rounded-lg bg-gray-200 shrink-0"></div>}
                       <div className="min-w-0">
                         <p className="text-sm font-bold truncate leading-tight">{item.name}</p>
                         <p className="text-[10px] text-gray-400 font-medium">Qty: {item.quantity}</p>

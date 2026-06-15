@@ -64,12 +64,16 @@ export default function BannerList() {
               exit={{ opacity: 0, scale: 0.95 }}
               className="bg-slate-800 rounded-3xl overflow-hidden border border-slate-700 group hover:border-slate-500 transition-all"
             >
-              <div className="aspect-video relative overflow-hidden">
-                <img 
-                  src={banner.image} 
-                  alt={banner.title} 
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
-                />
+              <div className="aspect-video relative overflow-hidden bg-slate-900 flex items-center justify-center">
+                {banner.image ? (
+                  <img 
+                    src={banner.image} 
+                    alt={banner.title} 
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
+                  />
+                ) : (
+                  <span className="text-xs text-slate-500 font-bold uppercase tracking-widest">No Image</span>
+                )}
                 {!banner.active && (
                   <div className="absolute inset-0 bg-slate-900/60 flex items-center justify-center">
                     <span className="bg-red-500/10 text-red-400 text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full border border-red-500/20">Inactive</span>

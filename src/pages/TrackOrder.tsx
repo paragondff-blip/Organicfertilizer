@@ -218,7 +218,7 @@ export default function TrackOrder() {
                  <div className="space-y-4 max-h-[200px] overflow-y-auto pr-4 custom-scrollbar">
                     {order.items?.map((item: any, i: number) => (
                       <div key={i} className="flex items-center gap-4 pb-4 border-b border-gray-50 last:border-0 last:pb-0">
-                        <img src={item.image} alt={item.name} className="w-12 h-12 rounded-xl object-cover shrink-0" />
+                        {item.image ? <img src={item.image} alt={item.name} className="w-12 h-12 rounded-xl object-cover shrink-0" /> : <div className="w-12 h-12 bg-slate-100 rounded-xl shrink-0"></div>}
                         <div className="flex-grow">
                           <p className="text-sm font-bold leading-tight">{item.name}</p>
                           <p className="text-xs text-gray-400">{item.quantity} x Tk {item.price}</p>

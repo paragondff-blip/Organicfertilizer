@@ -2,6 +2,7 @@ import { useState, useMemo, useEffect } from 'react';
 import { useSearchParams, Link, useNavigate } from 'react-router-dom';
 import { Search, SlidersHorizontal, Grid, List as ListIcon, Star, ShoppingBag, Heart, X, Layers } from 'lucide-react';
 import { useCart } from '../context/CartContext';
+import { useSite } from '../context/SiteContext';
 import { toast } from 'react-toastify';
 import { motion, AnimatePresence } from 'motion/react';
 import { db } from '../lib/firebase';
@@ -12,6 +13,7 @@ export default function Shop() {
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
   const { addToCart } = useCart();
+  const { settings } = useSite();
   
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -136,10 +138,17 @@ export default function Shop() {
             </select>
           </div>
 
-          <div className="bg-secondary/10 p-6 rounded-3xl space-y-4">
-            <h4 className="font-display font-bold text-lg text-secondary">Special Offer!</h4>
-            <p className="text-sm text-gray-600">Get 15% off on your first order with code <strong>WELCOME15</strong></p>
-          </div>
+          {settings.specialOffer?.active && (
+            <div className="bg-secondary/10 p-6 rounded-3xl space-y-4">
+              <h4 className="font-display font-bold text-lg text-secondary">{settings.specialOffer.title || 'Special Offer!'}</h4>
+              <p className="text-sm text-gray-600">{settings.specialOffer.description}</p>
+              {settings.specialOffer.endDate && (
+                <div className="mt-2 text-xs font-bold text-secondary bg-white/50 px-3 py-2 rounded-lg inline-block">
+                  Valid Until: {new Date(settings.specialOffer.endDate).toLocaleDateString()}
+                </div>
+              )}
+            </div>
+          )}
         </aside>
 
         {/* Main Content */}
@@ -191,11 +200,17 @@ export default function Shop() {
                         : "block relative w-full sm:w-64 aspect-square sm:aspect-auto overflow-hidden shrink-0"
                       }
                     >
-                      <img 
-                        src={prod.images[0]} 
-                        alt={prod.name} 
-                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" 
-                      />
+                      <div className="w-full h-full bg-slate-100 flex items-center justify-center">
+                        {prod.images && prod.images[0] ? (
+                          <img 
+                            src={prod.images[0]} 
+                            alt={prod.name} 
+                            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" 
+                          />
+                        ) : (
+                          <span className="text-slate-400 font-bold uppercase tracking-widest text-xs">No Image</span>
+                        )}
+                      </div>
                       <button className="absolute top-4 right-4 w-9 h-9 bg-white/80 backdrop-blur-sm rounded-full flex items-center justify-center text-gray-400 hover:text-red-500 transition-colors">
                         <Heart className="w-4 h-4" />
                       </button>

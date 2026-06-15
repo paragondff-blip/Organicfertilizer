@@ -3,7 +3,7 @@ import { db } from '../../lib/firebase';
 import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
 import { toast } from 'react-toastify';
 import { motion } from 'motion/react';
-import { Save, FileText, HelpCircle, Shield, Truck, RefreshCcw, Globe, LayoutDashboard, Trash2, CreditCard } from 'lucide-react';
+import { Save, FileText, HelpCircle, Shield, Truck, RefreshCcw, Globe, LayoutDashboard, Trash2, CreditCard, Tag } from 'lucide-react';
 import ImageUpload from '../../components/admin/ImageUpload';
 
 export default function SettingsManager() {
@@ -22,7 +22,11 @@ export default function SettingsManager() {
         email: '',
         facebook: '',
         instagram: '',
-        twitter: ''
+        twitter: '',
+        description: '',
+        quickLinks: [{ name: '', path: '' }],
+        categories: [{ name: '', path: '' }],
+        rightsReserved: ''
       }
     },
     company: { 
@@ -69,6 +73,12 @@ export default function SettingsManager() {
       nagadNumber: '',
       rocketActive: false,
       rocketNumber: ''
+    },
+    specialOffer: {
+      active: true,
+      title: '',
+      description: '',
+      endDate: ''
     }
   });
 
@@ -76,7 +86,7 @@ export default function SettingsManager() {
     const fetchAllSettings = async () => {
       setFetching(true);
       try {
-        const docKeys = ['general', 'company', 'privacy', 'terms', 'refund', 'shipping', 'faq', 'home', 'navigation', 'payments'];
+        const docKeys = ['general', 'company', 'privacy', 'terms', 'refund', 'shipping', 'faq', 'home', 'navigation', 'payments', 'specialOffer'];
         const newSettings = { ...settings };
         
         for (const key of docKeys) {
@@ -240,11 +250,48 @@ export default function SettingsManager() {
     });
   };
 
+  const addFooterLink = (type: 'quickLinks' | 'categories') => {
+    setSettings({
+      ...settings,
+      general: {
+        ...settings.general,
+        footer: {
+          ...settings.general.footer,
+          [type]: [...(settings.general.footer[type as keyof typeof settings.general.footer] as any[] || []), { name: '', path: '' }]
+        }
+      }
+    });
+  };
+
+  const updateFooterLink = (type: 'quickLinks' | 'categories', index: number, field: 'name' | 'path', value: string) => {
+    const newLinks = [...(settings.general.footer[type as keyof typeof settings.general.footer] as any[] || [])];
+    newLinks[index][field] = value;
+    setSettings({
+      ...settings,
+      general: {
+        ...settings.general,
+        footer: { ...settings.general.footer, [type]: newLinks }
+      }
+    });
+  };
+
+  const removeFooterLink = (type: 'quickLinks' | 'categories', index: number) => {
+    const newLinks = (settings.general.footer[type as keyof typeof settings.general.footer] as any[] || []).filter((_, i) => i !== index);
+    setSettings({
+      ...settings,
+      general: {
+        ...settings.general,
+        footer: { ...settings.general.footer, [type]: newLinks }
+      }
+    });
+  };
+
   if (fetching) return <div className="p-20 text-center">Loading settings...</div>;
 
   const tabs = [
     { id: 'general', label: 'Identity', icon: Globe },
     { id: 'navigation', label: 'Navigation', icon: FileText },
+    { id: 'specialOffer', label: 'Special Offer', icon: Tag },
     { id: 'payments', label: 'Payments', icon: CreditCard },
     { id: 'home', label: 'Home Page', icon: LayoutDashboard },
     { id: 'company', label: 'Our Company', icon: FileText },
@@ -380,7 +427,148 @@ export default function SettingsManager() {
                   />
                 </div>
               </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                <div className="space-y-2">
+                  <label className="block text-[10px] font-bold uppercase text-slate-500">Footer Short Description</label>
+                  <textarea 
+                    rows={2}
+                    value={settings.general.footer.description}
+                    onChange={(e) => setSettings({ ...settings, general: { ...settings.general, footer: { ...settings.general.footer, description: e.target.value } } })}
+                    className="w-full bg-slate-900 border border-slate-700 rounded-xl py-3 px-4 text-white focus:outline-none focus:border-primary text-sm resize-none"
+                    placeholder="Short description for the footer..."
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="block text-[10px] font-bold uppercase text-slate-500">Copyright / Rights Reserved Text</label>
+                  <input 
+                    type="text" 
+                    value={settings.general.footer.rightsReserved}
+                    onChange={(e) => setSettings({ ...settings, general: { ...settings.general, footer: { ...settings.general.footer, rightsReserved: e.target.value } } })}
+                    className="w-full bg-slate-900 border border-slate-700 rounded-xl py-3 px-4 text-white focus:outline-none focus:border-primary text-sm"
+                    placeholder="© 2026 My Website..."
+                  />
+                </div>
+              </div>
             </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              <div className="space-y-6">
+                <div className="flex items-center justify-between border-b border-slate-700 pb-2">
+                  <h3 className="text-sm font-bold uppercase tracking-[0.2em] text-primary">Footer Quick Links</h3>
+                  <button onClick={() => addFooterLink('quickLinks')} className="text-[10px] bg-primary/10 text-primary px-3 py-1 rounded-full font-bold hover:bg-primary hover:text-white transition-all">+ Add Link</button>
+                </div>
+                <div className="space-y-4">
+                  {settings.general.footer.quickLinks?.map((link, i) => (
+                    <div key={i} className="flex gap-4 p-4 bg-slate-900 rounded-2xl border border-slate-700 items-end">
+                      <div className="flex-grow space-y-2">
+                        <label className="block text-[10px] font-bold uppercase text-slate-500">Link Name</label>
+                        <input 
+                          type="text" value={link.name} onChange={(e) => updateFooterLink('quickLinks', i, 'name', e.target.value)}
+                          className="w-full bg-slate-800 border-none rounded-lg px-4 py-2 text-white text-sm font-bold"
+                          placeholder="FAQ"
+                        />
+                      </div>
+                      <div className="flex-grow space-y-2">
+                        <label className="block text-[10px] font-bold uppercase text-slate-500">Path / URL</label>
+                        <input 
+                          type="text" value={link.path} onChange={(e) => updateFooterLink('quickLinks', i, 'path', e.target.value)}
+                          className="w-full bg-slate-800 border-none rounded-lg px-4 py-2 text-white text-sm font-mono"
+                          placeholder="/faq"
+                        />
+                      </div>
+                      <button onClick={() => removeFooterLink('quickLinks', i)} className="mb-2 p-2 text-red-500 hover:bg-red-500/10 rounded-lg">
+                        <Trash2 className="w-5 h-5" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="space-y-6">
+                <div className="flex items-center justify-between border-b border-slate-700 pb-2">
+                  <h3 className="text-sm font-bold uppercase tracking-[0.2em] text-primary">Footer Categories</h3>
+                  <button onClick={() => addFooterLink('categories')} className="text-[10px] bg-primary/10 text-primary px-3 py-1 rounded-full font-bold hover:bg-primary hover:text-white transition-all">+ Add Category</button>
+                </div>
+                <div className="space-y-4">
+                  {settings.general.footer.categories?.map((link, i) => (
+                    <div key={i} className="flex gap-4 p-4 bg-slate-900 rounded-2xl border border-slate-700 items-end">
+                      <div className="flex-grow space-y-2">
+                        <label className="block text-[10px] font-bold uppercase text-slate-500">Category Name</label>
+                        <input 
+                          type="text" value={link.name} onChange={(e) => updateFooterLink('categories', i, 'name', e.target.value)}
+                          className="w-full bg-slate-800 border-none rounded-lg px-4 py-2 text-white text-sm font-bold"
+                          placeholder="Best Sellers"
+                        />
+                      </div>
+                      <div className="flex-grow space-y-2">
+                        <label className="block text-[10px] font-bold uppercase text-slate-500">Path / URL</label>
+                        <input 
+                          type="text" value={link.path} onChange={(e) => updateFooterLink('categories', i, 'path', e.target.value)}
+                          className="w-full bg-slate-800 border-none rounded-lg px-4 py-2 text-white text-sm font-mono"
+                          placeholder="/shop?sort=popular"
+                        />
+                      </div>
+                      <button onClick={() => removeFooterLink('categories', i)} className="mb-2 p-2 text-red-500 hover:bg-red-500/10 rounded-lg">
+                        <Trash2 className="w-5 h-5" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        ) : activeTab === 'specialOffer' ? (
+          <div className="space-y-8">
+            <div className="flex items-center justify-between border-b border-slate-700 pb-4">
+              <div className="space-y-1">
+                <h3 className="text-xl font-display font-bold text-white">Sidebar Special Offer</h3>
+                <p className="text-slate-400 text-sm">Display a promotional box in the Shop sidebar.</p>
+              </div>
+              <label className="relative inline-flex items-center cursor-pointer">
+                <input 
+                  type="checkbox" 
+                  checked={settings.specialOffer.active}
+                  onChange={(e) => setSettings({ ...settings, specialOffer: { ...settings.specialOffer, active: e.target.checked } })}
+                  className="sr-only peer" 
+                />
+                <div className="w-11 h-6 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+              </label>
+            </div>
+            {settings.specialOffer.active && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <label className="block text-[10px] font-bold uppercase text-slate-500">Offer Title</label>
+                  <input 
+                    type="text" 
+                    value={settings.specialOffer.title}
+                    onChange={(e) => setSettings({ ...settings, specialOffer: { ...settings.specialOffer, title: e.target.value } })}
+                    className="w-full bg-slate-900 border border-slate-700 rounded-xl py-3 px-4 text-white focus:outline-none focus:border-primary text-sm"
+                    placeholder="e.g. Special Offer!"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="block text-[10px] font-bold uppercase text-slate-500">End Date (Optional)</label>
+                  <input 
+                    type="date" 
+                    value={settings.specialOffer.endDate}
+                    onChange={(e) => setSettings({ ...settings, specialOffer: { ...settings.specialOffer, endDate: e.target.value } })}
+                    className="w-full bg-slate-900 border border-slate-700 rounded-xl py-3 px-4 text-white focus:outline-none focus:border-primary text-sm"
+                  />
+                  <p className="text-[10px] text-slate-500">Leave blank if this offer doesn't expire.</p>
+                </div>
+                <div className="md:col-span-2 space-y-2">
+                  <label className="block text-[10px] font-bold uppercase text-slate-500">Offer Description</label>
+                  <textarea 
+                    rows={3}
+                    value={settings.specialOffer.description}
+                    onChange={(e) => setSettings({ ...settings, specialOffer: { ...settings.specialOffer, description: e.target.value } })}
+                    className="w-full bg-slate-900 border border-slate-700 rounded-xl py-3 px-4 text-white focus:outline-none focus:border-primary text-sm resize-none"
+                    placeholder="e.g. Get 15% off on your first order with code WELCOME15"
+                  />
+                </div>
+              </div>
+            )}
           </div>
         ) : activeTab === 'payments' ? (
           <div className="space-y-12">

@@ -130,12 +130,16 @@ export default function Home() {
                 transition={{ delay: i * 0.1 }}
                 className="glass rounded-3xl overflow-hidden group border-none"
               >
-                <Link to={`/product/${prod.id}`} className="block relative aspect-square overflow-hidden">
-                  <img 
-                    src={prod.images[0]} 
-                    alt={prod.name} 
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" 
-                  />
+                <Link to={`/product/${prod.id}`} className="block relative aspect-square overflow-hidden bg-slate-100 flex items-center justify-center">
+                  {prod.images && prod.images[0] ? (
+                    <img 
+                      src={prod.images[0]} 
+                      alt={prod.name} 
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" 
+                    />
+                  ) : (
+                    <span className="text-slate-400 font-bold uppercase tracking-widest text-xs">No Image</span>
+                  )}
                   {prod.isNew && (
                     <span className="absolute top-4 left-4 bg-primary text-white text-[10px] font-bold px-3 py-1 rounded-full uppercase">New</span>
                   )}

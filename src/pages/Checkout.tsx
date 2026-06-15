@@ -285,7 +285,7 @@ export default function Checkout() {
             <div className="space-y-4 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
               {cart.map(item => (
                 <div key={item.productId} className="flex gap-4">
-                  <img src={item.image} alt={item.name} className="w-16 h-16 rounded-xl object-cover shrink-0" />
+                  {item.image ? <img src={item.image} alt={item.name} className="w-16 h-16 rounded-xl object-cover shrink-0" /> : <div className="w-16 h-16 bg-slate-100 rounded-xl shrink-0"></div>}
                   <div className="flex-grow">
                     <h4 className="font-bold text-sm leading-tight line-clamp-1">{item.name}</h4>
                     <p className="text-xs text-gray-400">Qty: {item.quantity} x Tk {item.price}</p>

@@ -21,7 +21,24 @@ export function SiteProvider({ children }: { children: React.ReactNode }) {
       email: 'hello@organicfertilizer.com',
       facebook: '#',
       instagram: '#',
-      twitter: '#'
+      twitter: '#',
+      description: 'Experience the true taste of nature with our premium collection of handcrafted products. Made with love and the finest ingredients.',
+      quickLinks: [
+        { name: 'Home', path: '/' },
+        { name: 'Shop', path: '/shop' },
+        { name: 'About Us', path: '/about' },
+        { name: 'Contact', path: '/contact' },
+        { name: 'FAQ', path: '/faq' },
+        { name: 'Privacy Policy', path: '/privacy' }
+      ],
+      categories: [
+        { name: 'Featured', path: '/shop?sort=popular' },
+        { name: 'Best Sellers', path: '/shop?sort=popular' },
+        { name: 'Organic Mix', path: '/shop' },
+        { name: 'Special Offers', path: '/shop' },
+        { name: 'New Arrivals', path: '/shop?sort=newest' }
+      ],
+      rightsReserved: 'All rights reserved.'
     },
     home: {
       heroTagline: 'Premium Organic Solutions',
@@ -54,23 +71,42 @@ export function SiteProvider({ children }: { children: React.ReactNode }) {
       nagadNumber: '01XXXXXXXXX',
       rocketActive: false,
       rocketNumber: ''
+    },
+    specialOffer: {
+      active: true,
+      title: 'Special Offer!',
+      description: 'Get 15% off on your first order with code WELCOME15',
+      endDate: ''
     }
   });
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Real-time listener for settings
-    const unsub = onSnapshot(doc(db, 'settings', 'general'), (docSnap) => {
-      if (docSnap.exists()) {
-        setSettings(prev => ({ ...prev, ...docSnap.data() }));
-      }
-      setLoading(false);
-    }, (err) => {
-      console.error(err);
-      setLoading(false);
-    });
+    const docKeys = ['general', 'home', 'navigation', 'payments', 'specialOffer'];
+    const unsubs = docKeys.map(key => 
+      onSnapshot(doc(db, 'settings', key), (docSnap) => {
+        if (docSnap.exists()) {
+          if (key === 'general') {
+            // General doc is merged at the root level for legacy reasons 
+            // (it contains siteName, logo, footer, etc.)
+            setSettings(prev => ({ ...prev, ...docSnap.data() }));
+          } else {
+            // Other docs are stored under their respective keys
+            setSettings(prev => ({ ...prev, [key]: { ...(prev as any)[key], ...docSnap.data() } }));
+          }
+        }
+      }, (err) => {
+        console.error(`Error loading ${key} settings:`, err);
+      })
+    );
 
-    return () => unsub();
+    // Initial load state timeout just to not block forever
+    const timer = setTimeout(() => setLoading(false), 1000);
+
+    return () => {
+      unsubs.forEach(unsub => unsub());
+      clearTimeout(timer);
+    };
   }, []);
 
   return (

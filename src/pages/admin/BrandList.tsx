@@ -65,12 +65,12 @@ export default function BrandList() {
               exit={{ opacity: 0, scale: 0.95 }}
               className="bg-slate-800 rounded-3xl overflow-hidden border border-slate-700 group hover:border-slate-500 transition-all p-6 space-y-6"
             >
-              <div className="aspect-square w-24 h-24 mx-auto rounded-2xl bg-white p-4 flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform">
-                <img 
-                  src={brand.logo} 
-                  alt={brand.name} 
-                  className="max-w-full max-h-full object-contain" 
-                />
+              <div className="aspect-square w-24 h-24 mx-auto rounded-2xl bg-white p-4 flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform overflow-hidden">
+                {brand.logo ? (
+                  <img src={brand.logo} alt={brand.name} className="max-w-full max-h-full object-contain" />
+                ) : (
+                  <span className="text-xs text-slate-400 font-bold uppercase text-center font-display">No Image</span>
+                )}
               </div>
               
               <div className="text-center space-y-2">

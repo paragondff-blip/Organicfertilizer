@@ -9,6 +9,10 @@ export interface SiteSettings {
     facebook: string;
     instagram: string;
     twitter: string;
+    description: string;
+    quickLinks: { name: string; path: string }[];
+    categories: { name: string; path: string }[];
+    rightsReserved: string;
   };
   home: {
     heroTagline: string;
@@ -32,6 +36,12 @@ export interface SiteSettings {
     nagadNumber: string;
     rocketActive: boolean;
     rocketNumber: string;
+  };
+  specialOffer: {
+    active: boolean;
+    title: string;
+    description: string;
+    endDate: string;
   };
 }
 
