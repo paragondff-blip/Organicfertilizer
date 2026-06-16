@@ -1,5 +1,5 @@
 import { Routes, Route, Link, useLocation, Navigate, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, ShoppingBag, Users, Tag, BarChart3, Settings, LogOut, PackagePlus, Image as ImageIcon, MessageSquare, Database } from 'lucide-react';
+import { LayoutDashboard, ShoppingBag, Users, Tag, BarChart3, Settings, LogOut, PackagePlus, Image as ImageIcon, MessageSquare, Database, Briefcase, Plus } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { motion } from 'motion/react';
 import { useState, useEffect } from 'react';
@@ -22,6 +22,8 @@ import OfferForm from './OfferForm';
 import SettingsManager from './SettingsManager';
 import Analytics from './Analytics';
 import ContactMessages from './ContactMessages';
+import JobList from './JobList';
+import JobForm from './JobForm';
 
 export default function AdminDashboard() {
   const { isAdmin, loading, logout } = useAuth();
@@ -41,6 +43,7 @@ export default function AdminDashboard() {
     { name: 'Products', path: '/admin/products', icon: ShoppingBag },
     { name: 'Orders', path: '/admin/orders', icon: ShoppingBag },
     { name: 'Customers', path: '/admin/customers', icon: Users },
+    { name: 'Careers', path: '/admin/careers', icon: Briefcase },
     { name: 'Analytics', path: '/admin/analytics', icon: BarChart3 },
     { name: 'Messages', path: '/admin/messages', icon: MessageSquare },
     { name: 'Site Settings', path: '/admin/settings', icon: Settings },
@@ -107,6 +110,11 @@ export default function AdminDashboard() {
                 <PackagePlus className="w-5 h-5" /> Add Product
               </Link>
             )}
+            {location.pathname === '/admin/careers' && (
+              <Link to="/admin/careers/add" className="btn-primary flex items-center gap-2 py-3 px-6 text-sm">
+                <Plus className="w-5 h-5" /> Add Job
+              </Link>
+            )}
             {location.pathname === '/admin/banners' && (
               <Link to="/admin/banners/add" className="btn-primary flex items-center gap-2 py-3 px-6 text-sm">
                 <PackagePlus className="w-5 h-5" /> Add Banner
@@ -150,6 +158,9 @@ export default function AdminDashboard() {
            <Route path="offers/add" element={<OfferForm />} />
            <Route path="offers/edit/:id" element={<OfferForm />} />
            <Route path="analytics" element={<Analytics />} />
+           <Route path="careers" element={<JobList />} />
+           <Route path="careers/add" element={<JobForm />} />
+           <Route path="careers/edit/:id" element={<JobForm />} />
            <Route path="messages" element={<ContactMessages />} />
            <Route path="settings" element={<SettingsManager />} />
            <Route path="*" element={<div className="bg-slate-800 p-20 rounded-3xl text-center text-slate-500 font-display text-2xl font-bold border border-slate-700 border-dashed">Module Implementation in Progress</div>} />

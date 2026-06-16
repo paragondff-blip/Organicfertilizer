@@ -28,6 +28,7 @@ export function SiteProvider({ children }: { children: React.ReactNode }) {
         { name: 'Shop', path: '/shop' },
         { name: 'About Us', path: '/about' },
         { name: 'Contact', path: '/contact' },
+        { name: 'Careers', path: '/careers' },
         { name: 'FAQ', path: '/faq' },
         { name: 'Privacy Policy', path: '/privacy' }
       ],
@@ -65,7 +66,8 @@ export function SiteProvider({ children }: { children: React.ReactNode }) {
         { name: 'Home', path: '/' },
         { name: 'Shop', path: '/shop' },
         { name: 'About Us', path: '/about' },
-        { name: 'Contact', path: '/contact' }
+        { name: 'Contact', path: '/contact' },
+        { name: 'Careers', path: '/careers' }
       ]
     },
     payments: {
@@ -122,6 +124,12 @@ export function SiteProvider({ children }: { children: React.ReactNode }) {
       clearTimeout(timer);
     };
   }, []);
+
+  useEffect(() => {
+    if (settings.siteName) {
+      document.title = settings.siteName;
+    }
+  }, [settings.siteName]);
 
   return (
     <SiteContext.Provider value={{ settings, loading }}>

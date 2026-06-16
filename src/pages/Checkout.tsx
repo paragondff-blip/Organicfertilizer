@@ -5,7 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import { motion } from 'motion/react';
 import { CreditCard, Truck, MapPin, CheckCircle2, ChevronRight, Lock } from 'lucide-react';
 import { toast } from 'react-toastify';
-import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
+import { addDoc, collection, serverTimestamp, query, where, getDocs } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { useSite } from '../context/SiteContext';
 
@@ -33,12 +33,6 @@ export default function Checkout() {
   };
 
   const handlePlaceOrder = async () => {
-    if (!user) {
-      toast.error("Please sign in to place an order");
-      navigate('/auth');
-      return;
-    }
-
     if (formData.paymentMethod !== 'cod' && !formData.transactionId) {
       toast.error("Please enter the Transaction ID for your payment");
       return;
@@ -46,10 +40,38 @@ export default function Checkout() {
 
     setLoading(true);
     try {
+      // Check if customer is blocked/banned by email
+      const usersRef = collection(db, 'users');
+      const q = query(usersRef, where('email', '==', formData.email.toLowerCase().trim()));
+      const userSnap = await getDocs(q);
+      
+      if (!userSnap.empty) {
+        // We use the first found user matching this email
+        const userDoc = userSnap.docs[0];
+        const existingUserInfo = userDoc.data();
+        
+        if (existingUserInfo.status === 'blocked' || existingUserInfo.status === 'banned') {
+          toast.error("Your account has been blocked or banned. Please contact support.");
+          setLoading(false);
+          return;
+        }
+      } else {
+        // Create a new user record for the customer management
+        await addDoc(collection(db, 'users'), {
+          email: formData.email.toLowerCase().trim(),
+          displayName: formData.fullName,
+          phoneNumber: formData.phone,
+          address: formData.address,
+          role: 'user',
+          status: 'active',
+          createdAt: new Date().toISOString()
+        });
+      }
+
       const orderData = {
-        userId: user.uid,
+        userId: user?.uid || 'guest',
         userName: formData.fullName,
-        email: formData.email,
+        email: formData.email.toLowerCase().trim(),
         items: cart,
         total: cartTotal,
         status: 'pending',
@@ -74,7 +96,12 @@ export default function Checkout() {
       } else {
         toast.success("Payment submitted! We will verify and process your order.");
       }
-      navigate('/dashboard/orders');
+      
+      if (user) {
+        navigate('/dashboard/orders');
+      } else {
+        navigate('/');
+      }
     } catch (error) {
       console.error("Order error:", error);
       toast.error("Failed to place order. Please try again.");
@@ -124,8 +151,12 @@ export default function Checkout() {
                     <input name="city" value={formData.city} onChange={handleInputChange} className="w-full bg-slate-50 border border-gray-100 rounded-xl py-3 px-4 focus:ring-2 focus:ring-primary/20 outline-none" required />
                   </div>
                   <div className="space-y-2">
-                    <label className="text-sm font-bold uppercase tracking-widest text-gray-400 ml-1">ZIP Code</label>
-                    <input name="zipCode" value={formData.zipCode} onChange={handleInputChange} className="w-full bg-slate-50 border border-gray-100 rounded-xl py-3 px-4 focus:ring-2 focus:ring-primary/20 outline-none" required />
+                    <label className="text-sm font-bold uppercase tracking-widest text-gray-400 ml-1">Email Address</label>
+                    <input name="email" type="email" value={formData.email} onChange={handleInputChange} className="w-full bg-slate-50 border border-gray-100 rounded-xl py-3 px-4 focus:ring-2 focus:ring-primary/20 outline-none" required />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-bold uppercase tracking-widest text-gray-400 ml-1">ZIP Code (Optional)</label>
+                    <input name="zipCode" value={formData.zipCode} onChange={handleInputChange} className="w-full bg-slate-50 border border-gray-100 rounded-xl py-3 px-4 focus:ring-2 focus:ring-primary/20 outline-none" />
                   </div>
                 </div>
                 <button onClick={() => setStep(2)} className="btn-primary w-full py-4 text-lg">Next Step <ChevronRight className="w-5 h-5" /></button>

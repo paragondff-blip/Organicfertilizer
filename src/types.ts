@@ -96,6 +96,7 @@ export interface UserProfile {
   role: 'user' | 'admin';
   phoneNumber?: string;
   address?: string;
+  status?: 'active' | 'blocked' | 'banned';
   createdAt: string;
 }
 
@@ -187,5 +188,16 @@ export interface Coupon {
   active: boolean;
   usageLimit?: number;
   usageCount: number;
+  createdAt: any;
+}
+
+export interface Job {
+  id: string;
+  title: string;
+  department: string;
+  location: string;
+  type: string;
+  description: string;
+  active: boolean;
   createdAt: any;
 }

@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -33,6 +33,8 @@ import { AuthProvider } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
 import { SiteProvider } from './context/SiteContext';
 
+import Careers from './pages/Careers';
+
 export default function App() {
   return (
     <SiteProvider>
@@ -49,12 +51,14 @@ export default function App() {
                 <Route path="/product/:id" element={<ProductDetails />} />
                 <Route path="/cart" element={<Cart />} />
                 <Route path="/checkout" element={<Checkout />} />
-                <Route path="/auth" element={<Auth />} />
-                <Route path="/dashboard/*" element={<Dashboard />} />
+                <Route path="/auth" element={<Navigate to="/" replace />} />
+                <Route path="/dashboard/*" element={<Navigate to="/" replace />} />
                 <Route path="/admin-login" element={<AdminLogin />} />
                 <Route path="/admin/*" element={<AdminDashboard />} />
                 <Route path="/about" element={<About />} />
                 <Route path="/contact" element={<Contact />} />
+                <Route path="/careers" element={<Careers />} />
+                <Route path="/career" element={<Careers />} />
                 <Route path="/blog" element={<Blog />} />
                 <Route path="/blog/:id" element={<BlogDetails />} />
                 <Route path="/faq" element={<FAQ />} />

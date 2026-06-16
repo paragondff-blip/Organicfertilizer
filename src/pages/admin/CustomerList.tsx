@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
 import { db } from '../../lib/firebase';
-import { collection, query, getDocs, orderBy } from 'firebase/firestore';
+import { collection, query, getDocs, orderBy, updateDoc, deleteDoc, doc } from 'firebase/firestore';
 import { UserProfile } from '../../types';
-import { User, Mail, Calendar, MapPin, Search } from 'lucide-react';
+import { User, Mail, Calendar, MapPin, Search, UserX, Ban, Trash2, ShieldCheck, MoreVertical } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import { toast } from 'react-toastify';
 
 export default function CustomerList() {
   const [customers, setCustomers] = useState<UserProfile[]>([]);
@@ -20,6 +21,27 @@ export default function CustomerList() {
       console.error(e);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleUpdateStatus = async (uid: string, newStatus: 'active' | 'blocked' | 'banned') => {
+    try {
+      await updateDoc(doc(db, 'users', uid), { status: newStatus });
+      toast.success(`User successfully ${newStatus}`);
+      fetchCustomers();
+    } catch (e) {
+      toast.error('Failed to update status');
+    }
+  };
+
+  const handleDeleteUser = async (uid: string) => {
+    if (!window.confirm('Are you sure you want to delete this customer? This action cannot be undone.')) return;
+    try {
+      await deleteDoc(doc(db, 'users', uid));
+      toast.success('Customer deleted');
+      fetchCustomers();
+    } catch (e) {
+      toast.error('Failed to delete customer');
     }
   };
 
@@ -53,12 +75,13 @@ export default function CustomerList() {
       <div className="bg-slate-800 rounded-[2.5rem] overflow-hidden border border-slate-700">
         <table className="w-full text-left">
           <thead>
-            <tr className="bg-slate-900/50 text-slate-400 text-[10px] uppercase font-bold tracking-[0.2em] border-b border-slate-700">
-              <th className="px-8 py-6">Customer</th>
-              <th className="px-8 py-6">Status</th>
-              <th className="px-8 py-6 text-center">Joined</th>
-              <th className="px-8 py-6">Role</th>
-            </tr>
+              <tr className="bg-slate-900/50 text-slate-400 text-[10px] uppercase font-bold tracking-[0.2em] border-b border-slate-700">
+                <th className="px-8 py-6">Customer</th>
+                <th className="px-8 py-6">Status</th>
+                <th className="px-8 py-6 text-center">Joined</th>
+                <th className="px-8 py-6">Role</th>
+                <th className="px-8 py-6 text-right">Actions</th>
+              </tr>
           </thead>
           <tbody className="divide-y divide-slate-700">
             <AnimatePresence>
@@ -81,15 +104,59 @@ export default function CustomerList() {
                     </div>
                   </td>
                   <td className="px-8 py-6">
-                    <span className="px-3 py-1 bg-green-900/50 text-green-400 rounded-full text-[10px] font-bold uppercase">Active</span>
+                    <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase ${
+                      c.status === 'blocked' ? 'bg-orange-900/50 text-orange-400' : 
+                      c.status === 'banned' ? 'bg-red-900/50 text-red-400' : 
+                      'bg-green-900/50 text-green-400'
+                    }`}>
+                      {c.status || 'Active'}
+                    </span>
                   </td>
                   <td className="px-8 py-6 text-center">
-                    <p className="text-xs text-slate-400">{new Date(c.createdAt).toLocaleDateString()}</p>
+                    <p className="text-xs text-slate-400">{c.createdAt ? new Date(c.createdAt).toLocaleDateString() : 'N/A'}</p>
                   </td>
                   <td className="px-8 py-6">
                     <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase ${c.role === 'admin' ? 'bg-primary/20 text-primary' : 'bg-slate-900 text-slate-500'}`}>
                        {c.role}
                     </span>
+                  </td>
+                  <td className="px-8 py-6 text-right">
+                    <div className="flex justify-end gap-2">
+                       {c.status !== 'blocked' && (
+                         <button 
+                           onClick={() => handleUpdateStatus(c.uid, 'blocked')}
+                           title="Block User"
+                           className="p-2 bg-slate-900 text-orange-400 hover:bg-orange-400 hover:text-white rounded-xl transition-all"
+                         >
+                           <UserX className="w-4 h-4" />
+                         </button>
+                       )}
+                       {c.status !== 'banned' && (
+                         <button 
+                           onClick={() => handleUpdateStatus(c.uid, 'banned')}
+                           title="Ban User"
+                           className="p-2 bg-slate-900 text-red-400 hover:bg-red-400 hover:text-white rounded-xl transition-all"
+                         >
+                           <Ban className="w-4 h-4" />
+                         </button>
+                       )}
+                       {c.status && c.status !== 'active' && (
+                         <button 
+                           onClick={() => handleUpdateStatus(c.uid, 'active')}
+                           title="Activate User"
+                           className="p-2 bg-slate-900 text-green-400 hover:bg-green-400 hover:text-white rounded-xl transition-all"
+                         >
+                           <ShieldCheck className="w-4 h-4" />
+                         </button>
+                       )}
+                       <button 
+                         onClick={() => handleDeleteUser(c.uid)}
+                         title="Delete Customer"
+                         className="p-2 bg-slate-900 text-slate-500 hover:bg-red-500 hover:text-white rounded-xl transition-all"
+                       >
+                         <Trash2 className="w-4 h-4" />
+                       </button>
+                    </div>
                   </td>
                 </motion.tr>
               ))}

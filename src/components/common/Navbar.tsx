@@ -105,23 +105,12 @@ export default function Navbar() {
                 </span>
               )}
             </Link>
-            {user ? (
+            {isAdmin ? (
               <div className="flex items-center gap-4">
-                <Link to="/dashboard" className="flex items-center gap-2 group">
-                  <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center border border-gray-200 group-hover:border-primary transition-colors overflow-hidden">
-                    {user.photoURL ? (
-                      <img src={user.photoURL} alt={user.displayName || 'User'} className="w-full h-full object-cover" />
-                    ) : (
-                      <User className="w-4 h-4 text-gray-400 group-hover:text-primary" />
-                    )}
-                  </div>
+                <Link to="/admin" className="p-2 bg-primary/10 text-primary rounded-xl hover:bg-primary hover:text-white transition-all group" title="Admin Dashboard">
+                  <LayoutDashboard className="w-5 h-5" />
                 </Link>
-                {isAdmin && (
-                  <Link to="/admin" className="text-gray-500 hover:text-primary transition-colors" title="Admin Panel">
-                    <LayoutDashboard className="w-5 h-5" />
-                  </Link>
-                )}
-                <button onClick={handleLogout} className="text-gray-500 hover:text-red-500 transition-colors">
+                <button onClick={handleLogout} className="p-2 text-gray-400 hover:text-red-500 transition-colors" title="Logout">
                   <LogOut className="w-5 h-5" />
                 </button>
               </div>
@@ -161,18 +150,12 @@ export default function Navbar() {
                 </Link>
               ))}
               <div className="pt-4 border-t border-gray-100">
-                {user && (
+                {isAdmin && (
                   <div className="flex flex-col gap-4">
-                    <Link to="/dashboard" onClick={() => setIsMenuOpen(false)} className="flex items-center gap-2 text-gray-600">
-                      <User className="w-5 h-5" />
-                      <span>My Profile</span>
+                    <Link to="/admin" onClick={() => setIsMenuOpen(false)} className="flex items-center gap-2 text-primary font-medium">
+                      <LayoutDashboard className="w-5 h-5" />
+                      <span>Admin Dashboard</span>
                     </Link>
-                    {isAdmin && (
-                      <Link to="/admin" onClick={() => setIsMenuOpen(false)} className="flex items-center gap-2 text-primary font-medium">
-                        <LayoutDashboard className="w-5 h-5" />
-                        <span>Admin Dashboard</span>
-                      </Link>
-                    )}
                     <button onClick={handleLogout} className="flex items-center gap-2 text-red-500 font-medium">
                       <LogOut className="w-5 h-5" />
                       <span>Logout</span>

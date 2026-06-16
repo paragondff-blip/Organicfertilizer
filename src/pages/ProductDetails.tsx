@@ -113,7 +113,7 @@ export default function ProductDetails() {
           animate={{ opacity: 1, x: 0 }}
           className="space-y-6"
         >
-          <div className="aspect-square rounded-[3rem] overflow-hidden bg-slate-100 flex items-center justify-center p-4">
+          <div className="aspect-square rounded-[3rem] overflow-hidden bg-slate-100 flex items-center justify-center p-4 relative">
             {product.images && product.images[0] ? (
               <img 
                 src={product.images[0]} 
@@ -122,6 +122,13 @@ export default function ProductDetails() {
               />
             ) : (
               <span className="text-slate-400 font-bold uppercase tracking-widest text-lg">No Image</span>
+            )}
+            {product.categoryName?.toLowerCase().includes('upcoming') && (
+              <div className="absolute inset-0 bg-black/40 flex items-center justify-center pointer-events-none rounded-[3rem]">
+                <div className="bg-primary/90 text-white py-3 px-12 -rotate-12 font-display font-black text-4xl tracking-[0.2em] shadow-2xl border-4 border-white/30 backdrop-blur-sm">
+                  UPCOMING
+                </div>
+              </div>
             )}
           </div>
           <div className="grid grid-cols-4 gap-4">
@@ -163,7 +170,12 @@ export default function ProductDetails() {
             {product.discountPrice && (
               <span className="text-xl text-gray-400 line-through">Tk {product.discountPrice}</span>
             )}
-            <span className="text-green-600 font-bold text-sm bg-green-100 px-3 py-1 rounded-full">In Stock</span>
+            <span className={`font-bold text-sm px-3 py-1 rounded-full ${product.stock > 0 ? 'text-green-600 bg-green-100' : 'text-red-600 bg-red-100'}`}>
+              {product.stock > 0 ? 'In Stock' : 'Out of Stock'}
+            </span>
+            {product.categoryName?.toLowerCase().includes('upcoming') && (
+              <span className="text-primary font-bold text-sm bg-primary/10 px-3 py-1 rounded-full animate-pulse">Coming Soon</span>
+            )}
           </div>
 
           <p className="text-gray-600 leading-relaxed text-lg italic">
@@ -190,6 +202,10 @@ export default function ProductDetails() {
               <div className="flex gap-4 flex-grow w-full">
                 <button 
                   onClick={() => {
+                    if (product.categoryName?.toLowerCase().includes('upcoming')) {
+                      toast.info("This product is coming soon!");
+                      return;
+                    }
                     addToCart(product, quantity);
                     toast.success(`${product.name} added to cart!`);
                   }}
@@ -197,15 +213,22 @@ export default function ProductDetails() {
                 >
                   <ShoppingBag className="w-6 h-6" /> Add to Cart
                 </button>
-                <button 
-                  onClick={() => {
-                    addToCart(product, quantity);
-                    navigate('/checkout');
-                  }}
-                  className="btn-primary h-14 text-lg font-bold flex-grow"
-                >
-                  Order Now
-                </button>
+                {product.stock > 0 && !product.categoryName?.toLowerCase().includes('upcoming') && (
+                  <button 
+                    onClick={() => {
+                      addToCart(product, quantity);
+                      navigate('/checkout');
+                    }}
+                    className="btn-primary h-14 text-lg font-bold flex-grow"
+                  >
+                    Order Now
+                  </button>
+                )}
+                {(product.categoryName?.toLowerCase().includes('upcoming') || product.stock <= 0) && (
+                  <div className="h-14 bg-gray-100 text-gray-400 border border-gray-200 rounded-full font-bold flex items-center justify-center flex-grow uppercase tracking-widest">
+                    {product.categoryName?.toLowerCase().includes('upcoming') ? 'Coming Soon' : 'Out of Stock'}
+                  </div>
+                )}
               </div>
             </div>
 

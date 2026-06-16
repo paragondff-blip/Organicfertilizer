@@ -210,6 +210,13 @@ export default function Shop() {
                         ) : (
                           <span className="text-slate-400 font-bold uppercase tracking-widest text-xs">No Image</span>
                         )}
+                        {prod.categoryName?.toLowerCase().includes('upcoming') && (
+                          <div className="absolute inset-0 bg-black/40 flex items-center justify-center pointer-events-none">
+                            <div className="bg-primary/90 text-white py-1.5 px-6 -rotate-12 font-display font-black text-lg tracking-[0.2em] shadow-2xl border-2 border-white/30 backdrop-blur-sm">
+                              UPCOMING
+                            </div>
+                          </div>
+                        )}
                       </div>
                       <button className="absolute top-4 right-4 w-9 h-9 bg-white/80 backdrop-blur-sm rounded-full flex items-center justify-center text-gray-400 hover:text-red-500 transition-colors">
                         <Heart className="w-4 h-4" />
@@ -243,9 +250,13 @@ export default function Shop() {
                         <div className="flex items-center justify-between">
                            <span className="text-2xl font-display font-bold text-gray-900">Tk {prod.price}</span>
                         </div>
-                        <div className="flex gap-2">
+                        <div className={`flex gap-2 ${prod.categoryName?.toLowerCase().includes('upcoming') || prod.stock <= 0 ? 'flex-col' : ''}`}>
                            <button 
                             onClick={() => {
+                              if (prod.categoryName?.toLowerCase().includes('upcoming')) {
+                                toast.info("This product is coming soon!");
+                                return;
+                              }
                               addToCart(prod, 1);
                               toast.success(`${prod.name} added to cart!`);
                             }}
@@ -253,17 +264,24 @@ export default function Shop() {
                             title="Add to Cart"
                           >
                             <ShoppingBag className="w-5 h-5" />
-                            {viewMode === 'list' && <span className="ml-2 font-bold text-[10px] uppercase tracking-widest">Add to Cart</span>}
+                            {(viewMode === 'list' || prod.categoryName?.toLowerCase().includes('upcoming') || prod.stock <= 0) && <span className="ml-2 font-bold text-[10px] uppercase tracking-widest">Add to Cart</span>}
                           </button>
-                          <button 
-                            onClick={() => {
-                              addToCart(prod, 1);
-                              navigate('/checkout');
-                            }}
-                            className="p-3 bg-primary text-white rounded-xl hover:bg-primary/90 transition-all shadow-md active:scale-95 flex items-center justify-center flex-grow font-bold text-[10px] uppercase tracking-widest"
-                          >
-                            Order Now
-                          </button>
+                          {prod.stock > 0 && !prod.categoryName?.toLowerCase().includes('upcoming') && (
+                            <button 
+                              onClick={() => {
+                                addToCart(prod, 1);
+                                navigate('/checkout');
+                              }}
+                              className="p-3 bg-primary text-white rounded-xl hover:bg-primary/90 transition-all shadow-md active:scale-95 flex items-center justify-center flex-grow font-bold text-[10px] uppercase tracking-widest"
+                            >
+                              Order Now
+                            </button>
+                          )}
+                          {(prod.categoryName?.toLowerCase().includes('upcoming') || prod.stock <= 0) && (
+                             <div className="h-10 bg-gray-100 text-gray-400 rounded-xl flex items-center justify-center font-bold text-[10px] uppercase tracking-widest border border-gray-200 flex-grow text-center">
+                              {prod.categoryName?.toLowerCase().includes('upcoming') ? 'Coming Soon' : 'Out of Stock'}
+                             </div>
+                          )}
                         </div>
                       </div>
                     </div>
