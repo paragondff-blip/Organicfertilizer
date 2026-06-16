@@ -201,3 +201,16 @@ export interface Job {
   active: boolean;
   createdAt: any;
 }
+
+export interface JobApplication {
+  id: string;
+  jobId: string;
+  jobTitle: string;
+  applicantName: string;
+  applicantEmail: string;
+  applicantPhone: string;
+  cvUrl?: string; // This will store the Base64 data for now
+  cvName?: string;
+  status: 'pending' | 'reviewed' | 'shortlisted' | 'rejected';
+  appliedAt: any;
+}

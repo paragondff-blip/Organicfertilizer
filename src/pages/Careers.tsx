@@ -1,15 +1,17 @@
-import { motion } from 'motion/react';
+import { motion, AnimatePresence } from 'motion/react';
 import { Mail, Briefcase, MapPin, ArrowRight } from 'lucide-react';
 import { useSite } from '../context/SiteContext';
 import { useEffect, useState } from 'react';
 import { db } from '../lib/firebase';
 import { collection, query, where, getDocs, orderBy } from 'firebase/firestore';
 import { Job } from '../types';
+import JobApplicationForm from '../components/careers/JobApplicationForm';
 
 export default function Careers() {
   const { settings } = useSite();
   const [jobs, setJobs] = useState<Job[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedJob, setSelectedJob] = useState<Job | null>(null);
 
   useEffect(() => {
     const fetchJobs = async () => {
@@ -106,9 +108,7 @@ export default function Careers() {
                     <p className="text-gray-500 max-w-2xl whitespace-pre-wrap">{job.description}</p>
                   </div>
                   <button 
-                    onClick={() => {
-                      window.location.href = `mailto:${settings.footer.email}?subject=Application for ${job.title}`;
-                    }}
+                    onClick={() => setSelectedJob(job)}
                     className="btn-primary py-4 px-8 whitespace-nowrap"
                   >
                     Apply Now <ArrowRight className="w-5 h-5 ml-2" />
@@ -119,6 +119,15 @@ export default function Careers() {
           )}
         </div>
       </section>
+
+      <AnimatePresence>
+        {selectedJob && (
+          <JobApplicationForm 
+            job={selectedJob} 
+            onClose={() => setSelectedJob(null)} 
+          />
+        )}
+      </AnimatePresence>
 
       {/* Contact Section */}
       <section className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center space-y-8">

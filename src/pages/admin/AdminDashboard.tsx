@@ -1,5 +1,5 @@
 import { Routes, Route, Link, useLocation, Navigate, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, ShoppingBag, Users, Tag, BarChart3, Settings, LogOut, PackagePlus, Image as ImageIcon, MessageSquare, Database, Briefcase, Plus } from 'lucide-react';
+import { LayoutDashboard, ShoppingBag, Users, Tag, BarChart3, Settings, LogOut, PackagePlus, Image as ImageIcon, MessageSquare, Database, Briefcase, Plus, FileText } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { motion } from 'motion/react';
 import { useState, useEffect } from 'react';
@@ -24,6 +24,7 @@ import Analytics from './Analytics';
 import ContactMessages from './ContactMessages';
 import JobList from './JobList';
 import JobForm from './JobForm';
+import JobApplications from './JobApplications';
 
 export default function AdminDashboard() {
   const { isAdmin, loading, logout } = useAuth();
@@ -44,6 +45,7 @@ export default function AdminDashboard() {
     { name: 'Orders', path: '/admin/orders', icon: ShoppingBag },
     { name: 'Customers', path: '/admin/customers', icon: Users },
     { name: 'Careers', path: '/admin/careers', icon: Briefcase },
+    { name: 'Applications', path: '/admin/applications', icon: FileText },
     { name: 'Analytics', path: '/admin/analytics', icon: BarChart3 },
     { name: 'Messages', path: '/admin/messages', icon: MessageSquare },
     { name: 'Site Settings', path: '/admin/settings', icon: Settings },
@@ -161,6 +163,7 @@ export default function AdminDashboard() {
            <Route path="careers" element={<JobList />} />
            <Route path="careers/add" element={<JobForm />} />
            <Route path="careers/edit/:id" element={<JobForm />} />
+           <Route path="applications" element={<JobApplications />} />
            <Route path="messages" element={<ContactMessages />} />
            <Route path="settings" element={<SettingsManager />} />
            <Route path="*" element={<div className="bg-slate-800 p-20 rounded-3xl text-center text-slate-500 font-display text-2xl font-bold border border-slate-700 border-dashed">Module Implementation in Progress</div>} />
