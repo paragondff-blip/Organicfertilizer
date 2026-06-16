@@ -130,8 +130,18 @@ export default function About() {
           
           <div className="lg:col-span-7 space-y-8">
             <div className="space-y-4">
-              <span className="text-secondary font-bold uppercase tracking-widest text-xs">A Message From The MD</span>
-              <h2 className="text-4xl md:text-6xl font-display font-bold text-gray-900">Leadership with <br /> <span className="text-primary italic">Vision</span></h2>
+              <span className="text-secondary font-bold uppercase tracking-widest text-xs">{data?.mdSectionBadge || 'A Message From The MD'}</span>
+              <h2 className="text-4xl md:text-6xl font-display font-bold text-gray-900">
+                {data?.mdSectionTitle ? (
+                  data.mdSectionTitle.includes('<br />') ? (
+                    <span dangerouslySetInnerHTML={{ __html: data.mdSectionTitle }} />
+                  ) : (
+                    data.mdSectionTitle
+                  )
+                ) : (
+                  <>Leadership with <br /> <span className="text-primary italic">Vision</span></>
+                )}
+              </h2>
             </div>
             <p className="text-xl text-gray-500 leading-relaxed font-medium italic border-l-4 border-primary pl-8 py-2">
               {data?.mdMessage || "We are dedicated to providing the healthiest and most delicious organic products."}
@@ -147,8 +157,8 @@ export default function About() {
       <section className="bg-gray-50 py-24 rounded-[5rem]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-16">
           <div className="text-center space-y-4 max-w-2xl mx-auto">
-             <h2 className="text-4xl font-display font-bold">Why Families Trust Us</h2>
-             <p className="text-gray-500">For decades, we have maintained the highest standards in the industry.</p>
+             <h2 className="text-4xl font-display font-bold">{data?.valuesSectionTitle || 'Why Families Trust Us'}</h2>
+             <p className="text-gray-500">{data?.valuesSectionSubtitle || 'For decades, we have maintained the highest standards in the industry.'}</p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {(data?.values?.length ? data.values : [

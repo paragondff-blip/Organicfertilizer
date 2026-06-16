@@ -152,7 +152,12 @@ export default function Home() {
                 </Link>
                 <div className="p-6 space-y-4">
                   <div>
-                    <span className="text-xs text-secondary font-bold uppercase">{prod.categoryName}</span>
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs text-secondary font-bold uppercase">{prod.categoryName}</span>
+                      {prod.specialOfferText && (
+                        <span className="text-[10px] bg-red-500 text-white px-2 py-0.5 rounded-full font-bold uppercase animate-pulse">{prod.specialOfferText}</span>
+                      )}
+                    </div>
                     <h3 className="font-display font-bold text-lg leading-tight mt-1 truncate">
                       <Link to={`/product/${prod.id}`} className="hover:text-primary transition-colors">{prod.name}</Link>
                     </h3>

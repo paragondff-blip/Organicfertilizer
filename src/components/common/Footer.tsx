@@ -1,9 +1,11 @@
 import { Link } from 'react-router-dom';
-import { Facebook, Instagram, Twitter, Mail, Phone, MapPin } from 'lucide-react';
+import { Facebook, Instagram, Twitter, Mail, Phone, MapPin, Youtube, Linkedin } from 'lucide-react';
 import { useSite } from '../../context/SiteContext';
 
 export default function Footer() {
   const { settings } = useSite();
+
+  const footer = settings.footer;
 
   return (
     <footer className="bg-gray-900 text-gray-300">
@@ -29,65 +31,95 @@ export default function Footer() {
                 ))}
               </span>
             </Link>
-            <p className="text-gray-400 leading-relaxed">
-              {settings.footer.description || `Experience the true taste of nature with our premium collection of handcrafted products. Made with love and the finest ingredients.`}
-            </p>
-            <div className="flex space-x-4">
-              {settings.footer.facebook && <a href={settings.footer.facebook} target="_blank" rel="noreferrer" className="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-primary transition-colors">
-                <Facebook className="w-5 h-5 text-gray-400 hover:text-white" />
-              </a>}
-              {settings.footer.instagram && <a href={settings.footer.instagram} target="_blank" rel="noreferrer" className="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-secondary transition-colors">
-                <Instagram className="w-5 h-5 text-gray-400 hover:text-white" />
-              </a>}
-              {settings.footer.twitter && <a href={settings.footer.twitter} target="_blank" rel="noreferrer" className="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-primary transition-colors">
-                <Twitter className="w-5 h-5 text-gray-400 hover:text-white" />
-              </a>}
+            {footer.description && (
+              <p className="text-gray-400 leading-relaxed">
+                {footer.description}
+              </p>
+            )}
+            <div className="flex flex-wrap gap-4">
+              {footer.facebook && (
+                <a href={footer.facebook} target="_blank" rel="noreferrer" className="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-[#1877F2] transition-colors group">
+                  <Facebook className="w-5 h-5 text-gray-400 group-hover:text-white" />
+                </a>
+              )}
+              {footer.instagram && (
+                <a href={footer.instagram} target="_blank" rel="noreferrer" className="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-[#E4405F] transition-colors group">
+                  <Instagram className="w-5 h-5 text-gray-400 group-hover:text-white" />
+                </a>
+              )}
+              {footer.twitter && (
+                <a href={footer.twitter} target="_blank" rel="noreferrer" className="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-[#1DA1F2] transition-colors group">
+                  <Twitter className="w-5 h-5 text-gray-400 group-hover:text-white" />
+                </a>
+              )}
+              {(footer as any).linkedin && (
+                <a href={(footer as any).linkedin} target="_blank" rel="noreferrer" className="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-[#0A66C2] transition-colors group">
+                  <Linkedin className="w-5 h-5 text-gray-400 group-hover:text-white" />
+                </a>
+              )}
+              {(footer as any).youtube && (
+                <a href={(footer as any).youtube} target="_blank" rel="noreferrer" className="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-[#FF0000] transition-colors group">
+                  <Youtube className="w-5 h-5 text-gray-400 group-hover:text-white" />
+                </a>
+              )}
             </div>
           </div>
 
           {/* Quick Links */}
-          <div>
-            <h3 className="text-white font-display font-bold text-lg mb-6">Quick Links</h3>
-            <ul className="space-y-4">
-              {settings.footer.quickLinks?.map((link, i) => (
-                <li key={i}><Link to={link.path} className="hover:text-primary transition-colors">{link.name}</Link></li>
-              ))}
-              <li><Link to="/admin-login" className="text-secondary/60 hover:text-secondary transition-colors font-bold text-[10px] uppercase tracking-widest mt-4 block">Admin Console</Link></li>
-            </ul>
-          </div>
+          {(footer.quickLinksTitle || footer.quickLinks?.length > 0) && (
+            <div>
+              <h3 className="text-white font-display font-bold text-lg mb-6">{footer.quickLinksTitle || 'Quick Links'}</h3>
+              <ul className="space-y-4">
+                {footer.quickLinks?.map((link, i) => (
+                  <li key={i}><Link to={link.path} className="hover:text-primary transition-colors">{link.name}</Link></li>
+                ))}
+                <li><Link to="/admin-login" className="text-secondary/60 hover:text-secondary transition-colors font-bold text-[10px] uppercase tracking-widest mt-4 block">Admin Console</Link></li>
+              </ul>
+            </div>
+          )}
 
           {/* Categories */}
-          <div>
-            <h3 className="text-white font-display font-bold text-lg mb-6">Categories</h3>
-            <ul className="space-y-4">
-              {settings.footer.categories?.map((link, i) => (
-                <li key={i}><Link to={link.path} className="hover:text-secondary transition-colors">{link.name}</Link></li>
-              ))}
-            </ul>
-          </div>
+          {(footer.categoriesTitle || footer.categories?.length > 0) && (
+            <div>
+              <h3 className="text-white font-display font-bold text-lg mb-6">{footer.categoriesTitle || 'Categories'}</h3>
+              <ul className="space-y-4">
+                {footer.categories?.map((link, i) => (
+                  <li key={i}><Link to={link.path} className="hover:text-secondary transition-colors">{link.name}</Link></li>
+                ))}
+              </ul>
+            </div>
+          )}
 
           {/* Contact Info */}
-          <div>
-            <h3 className="text-white font-display font-bold text-lg mb-6">Contact Us</h3>
-            <ul className="space-y-4">
-              <li className="flex items-start gap-3">
-                <MapPin className="w-5 h-5 text-primary mt-1 shrink-0" />
-                <span>{settings.footer.address}</span>
-              </li>
-              <li className="flex items-center gap-3">
-                <Phone className="w-5 h-5 text-primary shrink-0" />
-                <span>{settings.footer.phone}</span>
-              </li>
-              <li className="flex items-center gap-3">
-                <Mail className="w-5 h-5 text-primary shrink-0" />
-                <span>{settings.footer.email}</span>
-              </li>
-            </ul>
-          </div>
+          {(footer.contactTitle || footer.address || footer.phone || footer.email) && (
+            <div>
+              <h3 className="text-white font-display font-bold text-lg mb-6">{footer.contactTitle || 'Contact Us'}</h3>
+              <ul className="space-y-4">
+                {footer.address && (
+                  <li className="flex items-start gap-3">
+                    <MapPin className="w-5 h-5 text-primary mt-1 shrink-0" />
+                    <span>{footer.address}</span>
+                  </li>
+                )}
+                {footer.phone && (
+                  <li className="flex items-center gap-3">
+                    <Phone className="w-5 h-5 text-primary shrink-0" />
+                    <span>{footer.phone}</span>
+                  </li>
+                )}
+                {footer.email && (
+                  <li className="flex items-center gap-3">
+                    <Mail className="w-5 h-5 text-primary shrink-0" />
+                    <span>{footer.email}</span>
+                  </li>
+                )}
+              </ul>
+            </div>
+          )}
         </div>
 
         <div className="mt-16 pt-8 border-t border-gray-800 text-center">
-          <p>{settings.footer.rightsReserved || `© ${new Date().getFullYear()} ${settings.siteName}. All rights reserved.`}</p>
+          <p>{footer.rightsReserved || `© ${new Date().getFullYear()} ${settings.siteName}. All rights reserved.`}</p>
           <div className="mt-4 flex flex-wrap justify-center gap-4 text-xs grayscale opacity-50">
             <img src="https://upload.wikimedia.org/wikipedia/commons/b/b5/PayPal.svg" alt="PayPal" className="h-4" />
             <img src="https://upload.wikimedia.org/wikipedia/commons/5/5e/Visa_Inc._logo.svg" alt="Visa" className="h-4" />

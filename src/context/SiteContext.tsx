@@ -38,7 +38,10 @@ export function SiteProvider({ children }: { children: React.ReactNode }) {
         { name: 'Special Offers', path: '/shop' },
         { name: 'New Arrivals', path: '/shop?sort=newest' }
       ],
-      rightsReserved: 'All rights reserved.'
+      rightsReserved: 'All rights reserved.',
+      quickLinksTitle: 'Quick Links',
+      categoriesTitle: 'Categories',
+      contactTitle: 'Contact Us'
     },
     home: {
       heroTagline: 'Premium Organic Solutions',
@@ -53,7 +56,9 @@ export function SiteProvider({ children }: { children: React.ReactNode }) {
       topSellersTitle: 'Our Top Sellers',
       topSellersDesc: 'Discover the most effective organic fertilizers trusted by professional farmers and home gardeners alike.',
       newsletterTitle: 'Join Our Organic Community',
-      newsletterDesc: 'Subscribe to get special offers, farming tips, and once-in-a-lifetime deals delivered straight to your inbox.'
+      newsletterDesc: 'Subscribe to get special offers, farming tips, and once-in-a-lifetime deals delivered straight to your inbox.',
+      catalogTitle: 'The Catalog',
+      catalogSubtitle: 'Showing All Premium Organic Delights'
     },
     navigation: {
       headerLinks: [
@@ -77,12 +82,21 @@ export function SiteProvider({ children }: { children: React.ReactNode }) {
       title: 'Special Offer!',
       description: 'Get 15% off on your first order with code WELCOME15',
       endDate: ''
+    },
+    contactPage: {
+      badge: 'Reach Out',
+      title: "Let's Talk Biscuits",
+      subtitle: "Have a question about our products, an existing order, or just want to share some love? We're here for you.",
+      formTitle: 'Send a Message',
+      visitUsTitle: 'Visit our flagship store in Sweet City',
+      visitUsText: '',
+      mapImageUrl: ''
     }
   });
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const docKeys = ['general', 'home', 'navigation', 'payments', 'specialOffer'];
+    const docKeys = ['general', 'home', 'navigation', 'payments', 'specialOffer', 'contactPage'];
     const unsubs = docKeys.map(key => 
       onSnapshot(doc(db, 'settings', key), (docSnap) => {
         if (docSnap.exists()) {

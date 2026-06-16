@@ -14,6 +14,7 @@ export default function ProductForm() {
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(false);
   const [categories, setCategories] = useState<Category[]>([]);
+  const [brands, setBrands] = useState<{id: string, name: string}[]>([]);
 
   const [formData, setFormData] = useState<Partial<Product>>({
     name: '',
@@ -43,7 +44,17 @@ export default function ProductForm() {
         console.error(e);
       }
     };
+    const fetchBrands = async () => {
+      try {
+        const q = query(collection(db, 'brands'), orderBy('name'));
+        const snap = await getDocs(q);
+        setBrands(snap.docs.map(doc => ({ id: doc.id, name: doc.data().name })));
+      } catch (e) {
+        console.error(e);
+      }
+    };
     fetchCategories();
+    fetchBrands();
 
     if (id) {
       const fetchProduct = async () => {
@@ -140,10 +151,25 @@ export default function ProductForm() {
             </div>
             <div className="space-y-2">
               <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400 ml-1">Brand Name</label>
-              <input 
-                type="text" required 
+              <select 
+                required 
                 value={formData.brand}
                 onChange={(e) => setFormData({...formData, brand: e.target.value})}
+                className="w-full bg-slate-900 border border-slate-700 rounded-2xl py-4 px-6 text-white outline-none focus:border-primary appearance-none cursor-pointer"
+              >
+                <option value="">Select Brand</option>
+                {brands.map(b => (
+                  <option key={b.id} value={b.name}>{b.name}</option>
+                ))}
+              </select>
+            </div>
+            <div className="space-y-2">
+              <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400 ml-1">Special Offer Text</label>
+              <input 
+                type="text" 
+                value={formData.specialOfferText || ''}
+                onChange={(e) => setFormData({...formData, specialOfferText: e.target.value})}
+                placeholder="e.g. 10% Off / Buy 2 Get 1"
                 className="w-full bg-slate-900 border border-slate-700 rounded-2xl py-4 px-6 text-white outline-none focus:border-primary"
               />
             </div>

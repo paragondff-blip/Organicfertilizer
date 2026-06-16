@@ -13,6 +13,9 @@ export interface SiteSettings {
     quickLinks: { name: string; path: string }[];
     categories: { name: string; path: string }[];
     rightsReserved: string;
+    quickLinksTitle?: string;
+    categoriesTitle?: string;
+    contactTitle?: string;
   };
   home: {
     heroTagline: string;
@@ -24,6 +27,8 @@ export interface SiteSettings {
     topSellersDesc: string;
     newsletterTitle: string;
     newsletterDesc: string;
+    catalogTitle?: string;
+    catalogSubtitle?: string;
   };
   navigation: {
     headerLinks: { name: string; path: string }[];
@@ -42,6 +47,15 @@ export interface SiteSettings {
     title: string;
     description: string;
     endDate: string;
+  };
+  contactPage: {
+    badge?: string;
+    title?: string;
+    subtitle?: string;
+    formTitle?: string;
+    visitUsTitle?: string;
+    visitUsText?: string;
+    mapImageUrl?: string;
   };
 }
 
@@ -71,6 +85,7 @@ export interface Product {
   isNew?: boolean;
   isBestSeller?: boolean;
   discountPrice?: number;
+  specialOfferText?: string;
   createdAt: any;
 }
 
@@ -124,6 +139,7 @@ export interface BannerItem {
   image: string;
   link: string;
   active: boolean;
+  createdAt?: any;
 }
 
 export interface Brand {
@@ -144,6 +160,10 @@ export interface CompanyInfo {
   headerImage: string;
   heroTitle?: string;
   heroSubtitle?: string;
+  mdSectionBadge?: string;
+  mdSectionTitle?: string;
+  valuesSectionTitle?: string;
+  valuesSectionSubtitle?: string;
   stats?: {
     label: string;
     value: string;

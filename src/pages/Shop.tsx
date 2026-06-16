@@ -69,8 +69,8 @@ export default function Shop() {
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between mb-12 gap-8">
         <div className="space-y-1">
-          <h1 className="text-4xl font-display font-bold">The Catalog</h1>
-          <p className="text-gray-500">Showing {filteredProducts.length} Premium Organic Delights</p>
+          <h1 className="text-4xl font-display font-bold">{settings.home.catalogTitle || 'The Catalog'}</h1>
+          <p className="text-gray-500">{settings.home.catalogSubtitle || `Showing ${filteredProducts.length} Premium Organic Delights`}</p>
         </div>
         <div className="flex items-center gap-4">
           <div className="relative group">
@@ -221,9 +221,14 @@ export default function Shop() {
                       <div className="space-y-2">
                         <div className="flex items-center justify-between">
                           <span className="text-[10px] text-secondary font-bold uppercase tracking-widest">{prod.categoryName}</span>
-                          <div className="flex items-center gap-1 text-accent">
-                            <Star className="w-3 h-3 fill-current" />
-                            <span className="text-xs text-gray-400 font-bold">{prod.rating}</span>
+                          <div className="flex items-center gap-2">
+                             {prod.specialOfferText && (
+                               <span className="text-[10px] bg-red-500 text-white px-2 py-0.5 rounded-full font-bold uppercase animate-pulse">{prod.specialOfferText}</span>
+                             )}
+                             <div className="flex items-center gap-1 text-accent">
+                               <Star className="w-3 h-3 fill-current" />
+                               <span className="text-xs text-gray-400 font-bold">{prod.rating}</span>
+                             </div>
                           </div>
                         </div>
                         <h3 className="font-display font-bold text-xl leading-tight">
@@ -232,7 +237,6 @@ export default function Shop() {
                         {viewMode === 'list' && (
                           <p className="text-sm text-gray-500 line-clamp-2">{prod.description}</p>
                         )}
-                        <p className="text-xs text-gray-400 font-medium">Brand: {prod.brand}</p>
                       </div>
                       
                       <div className="flex flex-col space-y-3 pt-4 border-t border-gray-100">

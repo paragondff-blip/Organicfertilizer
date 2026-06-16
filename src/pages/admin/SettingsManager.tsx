@@ -3,7 +3,7 @@ import { db } from '../../lib/firebase';
 import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
 import { toast } from 'react-toastify';
 import { motion } from 'motion/react';
-import { Save, FileText, HelpCircle, Shield, Truck, RefreshCcw, Globe, LayoutDashboard, Trash2, CreditCard, Tag } from 'lucide-react';
+import { Save, FileText, HelpCircle, Shield, Truck, RefreshCcw, Globe, LayoutDashboard, Trash2, CreditCard, Tag, Mail } from 'lucide-react';
 import ImageUpload from '../../components/admin/ImageUpload';
 
 export default function SettingsManager() {
@@ -26,7 +26,12 @@ export default function SettingsManager() {
         description: '',
         quickLinks: [{ name: '', path: '' }],
         categories: [{ name: '', path: '' }],
-        rightsReserved: ''
+        rightsReserved: '',
+        quickLinksTitle: '',
+        categoriesTitle: '',
+        contactTitle: '',
+        linkedin: '',
+        youtube: ''
       }
     },
     company: { 
@@ -39,6 +44,10 @@ export default function SettingsManager() {
       headerImage: '',
       heroTitle: '',
       heroSubtitle: '',
+      mdSectionBadge: '',
+      mdSectionTitle: '',
+      valuesSectionTitle: '',
+      valuesSectionSubtitle: '',
       stats: [
         { label: '', value: '' }
       ],
@@ -60,7 +69,9 @@ export default function SettingsManager() {
       topSellersTitle: '',
       topSellersDesc: '',
       newsletterTitle: '',
-      newsletterDesc: ''
+      newsletterDesc: '',
+      catalogTitle: '',
+      catalogSubtitle: ''
     },
     navigation: {
       headerLinks: [{ name: '', path: '' }]
@@ -79,6 +90,15 @@ export default function SettingsManager() {
       title: '',
       description: '',
       endDate: ''
+    },
+    contactPage: {
+      badge: '',
+      title: '',
+      subtitle: '',
+      formTitle: '',
+      visitUsTitle: '',
+      visitUsText: '',
+      mapImageUrl: ''
     }
   });
 
@@ -86,7 +106,7 @@ export default function SettingsManager() {
     const fetchAllSettings = async () => {
       setFetching(true);
       try {
-        const docKeys = ['general', 'company', 'privacy', 'terms', 'refund', 'shipping', 'faq', 'home', 'navigation', 'payments', 'specialOffer'];
+        const docKeys = ['general', 'company', 'privacy', 'terms', 'refund', 'shipping', 'faq', 'home', 'navigation', 'payments', 'specialOffer', 'contactPage'];
         const newSettings = { ...settings };
         
         for (const key of docKeys) {
@@ -297,6 +317,7 @@ export default function SettingsManager() {
     { id: 'company', label: 'Our Company', icon: FileText },
     { id: 'faq', label: 'FAQ', icon: HelpCircle },
     { id: 'privacy', label: 'Privacy Policy', icon: Shield },
+    { id: 'contact_page', label: 'Contact Page', icon: Mail },
     { id: 'terms', label: 'Terms & Conditions', icon: Shield },
     { id: 'refund', label: 'Refund Policy', icon: RefreshCcw },
     { id: 'shipping', label: 'Shipping Policy', icon: Truck },
@@ -365,6 +386,16 @@ export default function SettingsManager() {
 
             <div className="space-y-6">
               <h3 className="text-sm font-bold uppercase tracking-[0.2em] text-primary border-b border-slate-700 pb-2">Footer & Contact Information</h3>
+              <div className="space-y-2">
+                <label className="block text-[10px] font-bold uppercase text-slate-500">Contact Section Header</label>
+                <input 
+                  type="text" 
+                  value={(settings.general.footer as any).contactTitle || 'Contact Us'}
+                  onChange={(e) => setSettings({ ...settings, general: { ...settings.general, footer: { ...settings.general.footer, contactTitle: e.target.value } as any } })}
+                  className="w-full bg-slate-900 border border-slate-700 rounded-xl py-3 px-4 text-white focus:outline-none focus:border-primary text-sm"
+                  placeholder="Contact Us"
+                />
+              </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
                   <label className="block text-[10px] font-bold uppercase text-slate-500">Office Address</label>
@@ -397,7 +428,7 @@ export default function SettingsManager() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <label className="block text-[10px] font-bold uppercase text-slate-500">Facebook Page URL</label>
+                  <label className="block text-[10px] font-bold uppercase text-slate-500">Facebook URL</label>
                   <input 
                     type="text" 
                     value={settings.general.footer.facebook}
@@ -407,7 +438,7 @@ export default function SettingsManager() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <label className="block text-[10px] font-bold uppercase text-slate-500">Instagram Profile URL</label>
+                  <label className="block text-[10px] font-bold uppercase text-slate-500">Instagram URL</label>
                   <input 
                     type="text" 
                     value={settings.general.footer.instagram}
@@ -417,13 +448,33 @@ export default function SettingsManager() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <label className="block text-[10px] font-bold uppercase text-slate-500">Twitter/X Profile URL</label>
+                  <label className="block text-[10px] font-bold uppercase text-slate-500">Twitter URL</label>
                   <input 
                     type="text" 
                     value={settings.general.footer.twitter}
                     onChange={(e) => setSettings({ ...settings, general: { ...settings.general, footer: { ...settings.general.footer, twitter: e.target.value } } })}
                     className="w-full bg-slate-900 border border-slate-700 rounded-xl py-3 px-4 text-white focus:outline-none focus:border-primary text-sm"
                     placeholder="https://twitter.com/..."
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="block text-[10px] font-bold uppercase text-slate-500">LinkedIn URL</label>
+                  <input 
+                    type="text" 
+                    value={(settings.general.footer as any).linkedin}
+                    onChange={(e) => setSettings({ ...settings, general: { ...settings.general, footer: { ...settings.general.footer, linkedin: e.target.value } as any } })}
+                    className="w-full bg-slate-900 border border-slate-700 rounded-xl py-3 px-4 text-white focus:outline-none focus:border-primary text-sm"
+                    placeholder="https://linkedin.com/..."
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="block text-[10px] font-bold uppercase text-slate-500">YouTube URL</label>
+                  <input 
+                    type="text" 
+                    value={(settings.general.footer as any).youtube}
+                    onChange={(e) => setSettings({ ...settings, general: { ...settings.general, footer: { ...settings.general.footer, youtube: e.target.value } as any } })}
+                    className="w-full bg-slate-900 border border-slate-700 rounded-xl py-3 px-4 text-white focus:outline-none focus:border-primary text-sm"
+                    placeholder="https://youtube.com/..."
                   />
                 </div>
               </div>
@@ -455,7 +506,15 @@ export default function SettingsManager() {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
               <div className="space-y-6">
                 <div className="flex items-center justify-between border-b border-slate-700 pb-2">
-                  <h3 className="text-sm font-bold uppercase tracking-[0.2em] text-primary">Footer Quick Links</h3>
+                  <div className="flex-grow space-y-2">
+                    <label className="block text-[10px] font-bold uppercase text-slate-500">Quick Links Header</label>
+                    <input 
+                      type="text" 
+                      value={(settings.general.footer as any).quickLinksTitle || 'Quick Links'}
+                      onChange={(e) => setSettings({ ...settings, general: { ...settings.general, footer: { ...settings.general.footer, quickLinksTitle: e.target.value } as any } })}
+                      className="bg-transparent border-none text-primary font-bold uppercase tracking-[0.2em] text-sm focus:outline-none w-full"
+                    />
+                  </div>
                   <button onClick={() => addFooterLink('quickLinks')} className="text-[10px] bg-primary/10 text-primary px-3 py-1 rounded-full font-bold hover:bg-primary hover:text-white transition-all">+ Add Link</button>
                 </div>
                 <div className="space-y-4">
@@ -487,7 +546,15 @@ export default function SettingsManager() {
 
               <div className="space-y-6">
                 <div className="flex items-center justify-between border-b border-slate-700 pb-2">
-                  <h3 className="text-sm font-bold uppercase tracking-[0.2em] text-primary">Footer Categories</h3>
+                  <div className="flex-grow space-y-2">
+                    <label className="block text-[10px] font-bold uppercase text-slate-500">Categories Header</label>
+                    <input 
+                      type="text" 
+                      value={(settings.general.footer as any).categoriesTitle || 'Categories'}
+                      onChange={(e) => setSettings({ ...settings, general: { ...settings.general, footer: { ...settings.general.footer, categoriesTitle: e.target.value } as any } })}
+                      className="bg-transparent border-none text-primary font-bold uppercase tracking-[0.2em] text-sm focus:outline-none w-full"
+                    />
+                  </div>
                   <button onClick={() => addFooterLink('categories')} className="text-[10px] bg-primary/10 text-primary px-3 py-1 rounded-full font-bold hover:bg-primary hover:text-white transition-all">+ Add Category</button>
                 </div>
                 <div className="space-y-4">
@@ -783,6 +850,32 @@ export default function SettingsManager() {
                   </div>
                 </div>
               </div>
+
+              <div className="md:col-span-2 space-y-6">
+                <h3 className="text-sm font-bold uppercase tracking-[0.2em] text-primary border-b border-slate-700 pb-2">Catalog / Shop Page Headings</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <label className="block text-[10px] font-bold uppercase text-slate-500">Catalog Title</label>
+                    <input 
+                      type="text" 
+                      value={(settings.home as any).catalogTitle || ''}
+                      onChange={(e) => setSettings({ ...settings, home: { ...settings.home, catalogTitle: e.target.value } as any })}
+                      className="w-full bg-slate-900 border border-slate-700 rounded-xl py-3 px-4 text-white focus:outline-none focus:border-primary text-sm"
+                      placeholder="The Catalog"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="block text-[10px] font-bold uppercase text-slate-500">Catalog Subtitle</label>
+                    <input 
+                      type="text" 
+                      value={(settings.home as any).catalogSubtitle || ''}
+                      onChange={(e) => setSettings({ ...settings, home: { ...settings.home, catalogSubtitle: e.target.value } as any })}
+                      className="w-full bg-slate-900 border border-slate-700 rounded-xl py-3 px-4 text-white focus:outline-none focus:border-primary text-sm"
+                      placeholder="Showing All Premium Organic Delights"
+                    />
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         ) : activeTab === 'navigation' ? (
@@ -880,6 +973,26 @@ export default function SettingsManager() {
                       placeholder="MD Message..."
                     />
                   </div>
+                  <div className="space-y-2">
+                    <label className="block text-[10px] font-bold uppercase text-slate-500">MD Section Badge</label>
+                    <input 
+                      type="text" 
+                      value={settings.company.mdSectionBadge || ''}
+                      onChange={(e) => setSettings({ ...settings, company: { ...settings.company, mdSectionBadge: e.target.value } })}
+                      className="w-full bg-slate-900 border border-slate-700 rounded-xl py-3 px-4 text-white focus:outline-none focus:border-primary text-sm"
+                      placeholder="e.g. A Message From The MD"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="block text-[10px] font-bold uppercase text-slate-500">MD Section Title</label>
+                    <input 
+                      type="text" 
+                      value={settings.company.mdSectionTitle || ''}
+                      onChange={(e) => setSettings({ ...settings, company: { ...settings.company, mdSectionTitle: e.target.value } })}
+                      className="w-full bg-slate-900 border border-slate-700 rounded-xl py-3 px-4 text-white focus:outline-none focus:border-primary text-sm"
+                      placeholder="e.g. Leadership with Vision"
+                    />
+                  </div>
                   <div className="md:col-span-2 space-y-2">
                     <label className="block text-[10px] font-bold uppercase text-slate-500">MD Featured Quote</label>
                     <input 
@@ -936,8 +1049,30 @@ export default function SettingsManager() {
 
               <div className="md:col-span-2 space-y-6">
                 <div className="flex items-center justify-between border-b border-slate-700 pb-2">
-                  <h3 className="text-sm font-bold uppercase tracking-[0.2em] text-primary">Our Values</h3>
+                  <h3 className="text-sm font-bold uppercase tracking-[0.2em] text-primary">Our Values Section</h3>
                   <button onClick={addValue} className="text-[10px] bg-primary/10 text-primary px-3 py-1 rounded-full font-bold hover:bg-primary hover:text-white transition-all">+ Add Value</button>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pb-4">
+                  <div className="space-y-2">
+                    <label className="block text-[10px] font-bold uppercase text-slate-500">Values Section Title</label>
+                    <input 
+                      type="text" 
+                      value={settings.company.valuesSectionTitle || ''}
+                      onChange={(e) => setSettings({ ...settings, company: { ...settings.company, valuesSectionTitle: e.target.value } })}
+                      className="w-full bg-slate-900 border border-slate-700 rounded-xl py-3 px-4 text-white focus:outline-none focus:border-primary text-sm"
+                      placeholder="e.g. Why Families Trust Us"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="block text-[10px] font-bold uppercase text-slate-500">Values Section Subtitle</label>
+                    <input 
+                      type="text" 
+                      value={settings.company.valuesSectionSubtitle || ''}
+                      onChange={(e) => setSettings({ ...settings, company: { ...settings.company, valuesSectionSubtitle: e.target.value } })}
+                      className="w-full bg-slate-900 border border-slate-700 rounded-xl py-3 px-4 text-white focus:outline-none focus:border-primary text-sm"
+                      placeholder="e.g. For decades, we have maintained the highest standards..."
+                    />
+                  </div>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                   {settings.company.values?.map((val, i) => (
@@ -997,6 +1132,87 @@ export default function SettingsManager() {
             <button onClick={addFaqItem} className="w-full py-4 border-2 border-dashed border-slate-700 rounded-2xl text-slate-500 hover:text-white hover:border-slate-500 transition-all font-bold">
               + Add New FAQ Item
             </button>
+          </div>
+        ) : activeTab === 'contact_page' ? (
+          <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <div className="md:col-span-2 space-y-6">
+                <h3 className="text-sm font-bold uppercase tracking-[0.2em] text-primary border-b border-slate-700 pb-2">Page Headings</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <label className="block text-[10px] font-bold uppercase text-slate-500">Badge Text</label>
+                    <input 
+                      type="text" 
+                      value={settings.contactPage?.badge || ''}
+                      onChange={(e) => setSettings({ ...settings, contactPage: { ...settings.contactPage, badge: e.target.value } })}
+                      className="w-full bg-slate-900 border border-slate-700 rounded-xl py-3 px-4 text-white focus:outline-none focus:border-primary text-sm"
+                      placeholder="e.g. Reach Out"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="block text-[10px] font-bold uppercase text-slate-500">Main Title</label>
+                    <input 
+                      type="text" 
+                      value={settings.contactPage?.title || ''}
+                      onChange={(e) => setSettings({ ...settings, contactPage: { ...settings.contactPage, title: e.target.value } })}
+                      className="w-full bg-slate-900 border border-slate-700 rounded-xl py-3 px-4 text-white focus:outline-none focus:border-primary text-sm"
+                      placeholder="e.g. Let's Talk Biscuits"
+                    />
+                  </div>
+                  <div className="md:col-span-2 space-y-2">
+                    <label className="block text-[10px] font-bold uppercase text-slate-500">Subtitle / Description</label>
+                    <textarea 
+                      rows={2}
+                      value={settings.contactPage?.subtitle || ''}
+                      onChange={(e) => setSettings({ ...settings, contactPage: { ...settings.contactPage, subtitle: e.target.value } })}
+                      className="w-full bg-slate-900 border border-slate-700 rounded-xl py-3 px-4 text-white focus:outline-none focus:border-primary text-sm resize-none"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="md:col-span-2 space-y-6">
+                <h3 className="text-sm font-bold uppercase tracking-[0.2em] text-primary border-b border-slate-700 pb-2">Form & Map</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <label className="block text-[10px] font-bold uppercase text-slate-500">Form Title</label>
+                    <input 
+                      type="text" 
+                      value={settings.contactPage?.formTitle || ''}
+                      onChange={(e) => setSettings({ ...settings, contactPage: { ...settings.contactPage, formTitle: e.target.value } })}
+                      className="w-full bg-slate-900 border border-slate-700 rounded-xl py-3 px-4 text-white focus:outline-none focus:border-primary text-sm"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="block text-[10px] font-bold uppercase text-slate-500">Visit Us Badge Title</label>
+                    <input 
+                      type="text" 
+                      value={settings.contactPage?.visitUsTitle || ''}
+                      onChange={(e) => setSettings({ ...settings, contactPage: { ...settings.contactPage, visitUsTitle: e.target.value } })}
+                      className="w-full bg-slate-900 border border-slate-700 rounded-xl py-3 px-4 text-white focus:outline-none focus:border-primary text-sm"
+                    />
+                  </div>
+                  <div className="md:col-span-2 space-y-2">
+                    <label className="block text-[10px] font-bold uppercase text-slate-500">Visit Us Text</label>
+                    <input 
+                      type="text" 
+                      value={settings.contactPage?.visitUsText || ''}
+                      onChange={(e) => setSettings({ ...settings, contactPage: { ...settings.contactPage, visitUsText: e.target.value } })}
+                      className="w-full bg-slate-900 border border-slate-700 rounded-xl py-3 px-4 text-white focus:outline-none focus:border-primary text-sm"
+                    />
+                  </div>
+                  <div className="md:col-span-2 space-y-2">
+                    <label className="block text-[10px] font-bold uppercase text-slate-500">Map Image URL</label>
+                    <input 
+                      type="text" 
+                      value={settings.contactPage?.mapImageUrl || ''}
+                      onChange={(e) => setSettings({ ...settings, contactPage: { ...settings.contactPage, mapImageUrl: e.target.value } })}
+                      className="w-full bg-slate-900 border border-slate-700 rounded-xl py-3 px-4 text-white focus:outline-none focus:border-primary text-sm"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         ) : (
           <div className="space-y-4">
