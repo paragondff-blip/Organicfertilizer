@@ -48,16 +48,28 @@ export default function Checkout() {
 
     setLoading(true);
     try {
-      // Check if customer is blocked/banned by email
-      const usersRef = collection(db, 'users');
-      const q = query(usersRef, where('email', '==', formData.email.toLowerCase().trim()));
-      const userSnap = await getDocs(q);
+      let existingUserInfo = null;
+      let userFoundBy = '';
+
+      if (formData.email.trim()) {
+        const q = query(collection(db, 'users'), where('email', '==', formData.email.toLowerCase().trim()));
+        const userSnap = await getDocs(q);
+        if (!userSnap.empty) {
+          existingUserInfo = userSnap.docs[0].data();
+          userFoundBy = 'email';
+        }
+      }
+
+      if (!existingUserInfo && formData.phone.trim()) {
+        const q = query(collection(db, 'users'), where('phoneNumber', '==', formData.phone.trim()));
+        const userSnap = await getDocs(q);
+        if (!userSnap.empty) {
+          existingUserInfo = userSnap.docs[0].data();
+          userFoundBy = 'phone';
+        }
+      }
       
-      if (!userSnap.empty) {
-        // We use the first found user matching this email
-        const userDoc = userSnap.docs[0];
-        const existingUserInfo = userDoc.data();
-        
+      if (existingUserInfo) {
         if (existingUserInfo.status === 'blocked' || existingUserInfo.status === 'banned') {
           toast.error("Your account has been blocked or banned. Please contact support.");
           setLoading(false);
@@ -66,7 +78,7 @@ export default function Checkout() {
       } else {
         // Create a new user record for the customer management
         await addDoc(collection(db, 'users'), {
-          email: formData.email.toLowerCase().trim(),
+          email: formData.email ? formData.email.toLowerCase().trim() : '',
           displayName: formData.fullName,
           phoneNumber: formData.phone,
           address: formData.address,
@@ -79,7 +91,7 @@ export default function Checkout() {
       const orderData = {
         userId: user?.uid || 'guest',
         userName: formData.fullName,
-        email: formData.email.toLowerCase().trim(),
+        email: formData.email ? formData.email.toLowerCase().trim() : '',
         items: cart,
         subtotal: cartTotal,
         shippingFee: shippingFee,
@@ -165,8 +177,8 @@ export default function Checkout() {
                     </select>
                   </div>
                   <div className="space-y-2">
-                    <label className="text-sm font-bold uppercase tracking-widest text-gray-400 ml-1">Email Address</label>
-                    <input name="email" type="email" value={formData.email} onChange={handleInputChange} className="w-full bg-slate-50 border border-gray-100 rounded-xl py-3 px-4 focus:ring-2 focus:ring-primary/20 outline-none" required />
+                    <label className="text-sm font-bold uppercase tracking-widest text-gray-400 ml-1">Email Address (Optional)</label>
+                    <input name="email" type="email" value={formData.email} onChange={handleInputChange} className="w-full bg-slate-50 border border-gray-100 rounded-xl py-3 px-4 focus:ring-2 focus:ring-primary/20 outline-none" />
                   </div>
                   <div className="space-y-2">
                     <label className="text-sm font-bold uppercase tracking-widest text-gray-400 ml-1">ZIP Code (Optional)</label>
