@@ -32,9 +32,17 @@ export default function Checkout() {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+  const shippingFee = formData.city === 'Dhaka Metro' ? 120 : (formData.city === 'Other Area' ? 150 : 0);
+  const finalTotal = cartTotal + shippingFee;
+
   const handlePlaceOrder = async () => {
     if (formData.paymentMethod !== 'cod' && !formData.transactionId) {
       toast.error("Please enter the Transaction ID for your payment");
+      return;
+    }
+
+    if (!formData.city) {
+      toast.error("Please select a delivery area.");
       return;
     }
 
@@ -73,7 +81,9 @@ export default function Checkout() {
         userName: formData.fullName,
         email: formData.email.toLowerCase().trim(),
         items: cart,
-        total: cartTotal,
+        subtotal: cartTotal,
+        shippingFee: shippingFee,
+        total: finalTotal,
         status: 'pending',
         paymentStatus: formData.paymentMethod === 'cod' ? 'unpaid' : 'pending_verification',
         shippingAddress: {
@@ -147,8 +157,12 @@ export default function Checkout() {
                     <input name="address" value={formData.address} onChange={handleInputChange} className="w-full bg-slate-50 border border-gray-100 rounded-xl py-3 px-4 focus:ring-2 focus:ring-primary/20 outline-none" required />
                   </div>
                   <div className="space-y-2">
-                    <label className="text-sm font-bold uppercase tracking-widest text-gray-400 ml-1">City</label>
-                    <input name="city" value={formData.city} onChange={handleInputChange} className="w-full bg-slate-50 border border-gray-100 rounded-xl py-3 px-4 focus:ring-2 focus:ring-primary/20 outline-none" required />
+                    <label className="text-sm font-bold uppercase tracking-widest text-gray-400 ml-1">Delivery Area</label>
+                    <select name="city" value={formData.city} onChange={handleInputChange} className="w-full bg-slate-50 border border-gray-100 rounded-xl py-3 px-4 focus:ring-2 focus:ring-primary/20 outline-none" required>
+                      <option value="" disabled>Select Delivery Area</option>
+                      <option value="Dhaka Metro">Inside Dhaka Metro (Tk 120)</option>
+                      <option value="Other Area">Outside Dhaka (Tk 150)</option>
+                    </select>
                   </div>
                   <div className="space-y-2">
                     <label className="text-sm font-bold uppercase tracking-widest text-gray-400 ml-1">Email Address</label>
@@ -333,11 +347,13 @@ export default function Checkout() {
               </div>
               <div className="flex justify-between font-bold">
                 <span className="text-gray-400 uppercase tracking-tighter text-xs">Shipping</span>
-                <span className="text-green-600">FREE</span>
+                <span className={shippingFee === 0 ? "text-gray-400" : ""}>
+                  {shippingFee === 0 ? "Select Area" : `Tk ${shippingFee.toFixed(2)}`}
+                </span>
               </div>
               <div className="flex justify-between items-center pt-4 border-t border-gray-100">
                 <span className="font-display font-bold text-xl uppercase tracking-widest text-primary">Total</span>
-                <span className="text-3xl font-display font-bold">Tk {cartTotal.toFixed(2)}</span>
+                <span className="text-3xl font-display font-bold">Tk {finalTotal.toFixed(2)}</span>
               </div>
             </div>
           </div>
